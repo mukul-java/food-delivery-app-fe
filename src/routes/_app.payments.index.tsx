@@ -17,7 +17,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { paymentsService, type Payment, type PaymentStatus } from "@/services/paymentsService";
+import {
+  paymentsService,
+  type PaymentResponseDto,
+  type PaymentStatus,
+} from "@/services/paymentsService";
 import { PageHeader } from "@/components/PageHeader";
 import { SearchBar } from "@/components/SearchBar";
 import { DataPagination } from "@/components/DataPagination";
@@ -28,8 +32,17 @@ export const Route = createFileRoute("/_app/payments/")({
   component: PaymentsPage,
 });
 
+const STATUS_OPTIONS: PaymentStatus[] = [
+  "CREATED",
+  "PENDING",
+  "SUCCESS",
+  "FAILED",
+  "CANCELLED",
+  "EXPIRED",
+];
+
 function PaymentsPage() {
-  const [items, setItems] = useState<Payment[]>([]);
+  const [items, setItems] = useState<PaymentResponseDto[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -67,7 +80,7 @@ function PaymentsPage() {
             <SearchBar
               value={search}
               onChange={setSearch}
-              placeholder="Search payments, orders..."
+              placeholder="Search payment, order, user..."
             />
             <Select value={status} onValueChange={(v) => setStatus(v as PaymentStatus | "ALL")}>
               <SelectTrigger className="w-full sm:w-48">
@@ -75,10 +88,11 @@ function PaymentsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">All statuses</SelectItem>
-                <SelectItem value="SUCCESS">Success</SelectItem>
-                <SelectItem value="PENDING">Pending</SelectItem>
-                <SelectItem value="FAILED">Failed</SelectItem>
-                <SelectItem value="REFUNDED">Refunded</SelectItem>
+                {STATUS_OPTIONS.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -91,35 +105,43 @@ function PaymentsPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Payment ID</TableHead>
-                    <TableHead>Order</TableHead>
-                    <TableHead>Customer</TableHead>
+                    <TableHead>Order ID</TableHead>
+                    <TableHead>User ID</TableHead>
                     <TableHead>Amount</TableHead>
+                    <TableHead>Currency</TableHead>
                     <TableHead>Method</TableHead>
+                    <TableHead>Gateway</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Created</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {items.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
+                      <TableCell colSpan={10} className="py-8 text-center text-muted-foreground">
                         No payments found
                       </TableCell>
                     </TableRow>
                   )}
                   {items.map((p) => (
-                    <TableRow key={p.id}>
-                      <TableCell className="font-medium">{p.id}</TableCell>
+                    <TableRow key={p.paymentId}>
+                      <TableCell className="font-medium">{p.paymentId}</TableCell>
                       <TableCell>{p.orderId}</TableCell>
-                      <TableCell>{p.customer}</TableCell>
-                      <TableCell>${p.amount.toFixed(2)}</TableCell>
-                      <TableCell>{p.method}</TableCell>
+                      <TableCell className="font-mono text-xs">{p.userId}</TableCell>
+                      <TableCell>{p.amount.toFixed(2)}</TableCell>
+                      <TableCell>{p.currency}</TableCell>
+                      <TableCell>{p.paymentMethod}</TableCell>
+                      <TableCell>{p.gateway}</TableCell>
                       <TableCell>
                         <StatusBadge status={p.status} />
                       </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {new Date(p.createdAt).toLocaleString()}
+                      </TableCell>
                       <TableCell className="text-right">
                         <Button asChild variant="ghost" size="sm">
-                          <Link to="/payments/$id" params={{ id: p.id }}>
+                          <Link to="/payments/$id" params={{ id: p.paymentId }}>
                             Details
                           </Link>
                         </Button>

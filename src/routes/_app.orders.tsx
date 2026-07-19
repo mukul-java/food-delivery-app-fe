@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { ordersService, type Order, type OrderStatus } from "@/services/ordersService";
+import { ordersService, type OrderResponse, type OrderStatus } from "@/services/ordersService";
 import { PageHeader } from "@/components/PageHeader";
 import { SearchBar } from "@/components/SearchBar";
 import { DataPagination } from "@/components/DataPagination";
@@ -30,14 +30,23 @@ export const Route = createFileRoute("/_app/orders")({
   component: OrdersPage,
 });
 
+const STATUS_OPTIONS: OrderStatus[] = [
+  "PLACED",
+  "CONFIRMED",
+  "PREPARING",
+  "OUT_FOR_DELIVERY",
+  "DELIVERED",
+  "CANCELLED",
+];
+
 function OrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<OrderResponse[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<OrderStatus | "ALL">("ALL");
   const [loading, setLoading] = useState(true);
-  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [confirmId, setConfirmId] = useState<number | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -62,9 +71,9 @@ function OrdersPage() {
   }, [search]);
 
   const handleCancel = async () => {
-    if (!confirmId) return;
+    if (confirmId == null) return;
     await ordersService.cancel(confirmId);
-    toast.success(`Order ${confirmId} cancelled`);
+    toast.success(`Order #${confirmId} cancelled`);
     setConfirmId(null);
     load();
   };
@@ -79,18 +88,19 @@ function OrdersPage() {
             <SearchBar
               value={search}
               onChange={setSearch}
-              placeholder="Search orders, customers..."
+              placeholder="Search order #, user, restaurant..."
             />
             <Select value={status} onValueChange={(v) => setStatus(v as OrderStatus | "ALL")}>
-              <SelectTrigger className="w-full sm:w-48">
+              <SelectTrigger className="w-full sm:w-52">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">All statuses</SelectItem>
-                <SelectItem value="PENDING">Pending</SelectItem>
-                <SelectItem value="PREPARING">Preparing</SelectItem>
-                <SelectItem value="DELIVERED">Delivered</SelectItem>
-                <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                {STATUS_OPTIONS.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s.replace(/_/g, " ")}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -102,43 +112,51 @@ function OrdersPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Order ID</TableHead>
-                    <TableHead>Customer</TableHead>
+                    <TableHead>Order #</TableHead>
                     <TableHead>Restaurant</TableHead>
+                    <TableHead>User</TableHead>
                     <TableHead>Items</TableHead>
                     <TableHead>Total</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
+                    <TableHead>Order Time</TableHead>
+                    <TableHead>Expected Delivery</TableHead>
+                    <TableHead>Payment ID</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {orders.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
+                      <TableCell colSpan={10} className="py-8 text-center text-muted-foreground">
                         No orders found
                       </TableCell>
                     </TableRow>
                   )}
                   {orders.map((o) => (
-                    <TableRow key={o.id}>
-                      <TableCell className="font-medium">{o.id}</TableCell>
-                      <TableCell>{o.customer}</TableCell>
-                      <TableCell>{o.restaurant}</TableCell>
-                      <TableCell>{o.items}</TableCell>
-                      <TableCell>${o.total.toFixed(2)}</TableCell>
+                    <TableRow key={o.orderNumber}>
+                      <TableCell className="font-medium">#{o.orderNumber}</TableCell>
+                      <TableCell>{o.restaurantName}</TableCell>
+                      <TableCell>{o.userName}</TableCell>
+                      <TableCell>{o.orderItems.length}</TableCell>
+                      <TableCell>${o.totalAmount.toFixed(2)}</TableCell>
                       <TableCell>
-                        <StatusBadge status={o.status} />
+                        <StatusBadge status={o.orderStatus} />
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {new Date(o.createdAt).toLocaleDateString()}
+                        {new Date(o.orderTime).toLocaleString()}
                       </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {new Date(o.expectedDeliveryTime).toLocaleString()}
+                      </TableCell>
+                      <TableCell className="font-mono text-xs">{o.paymentId}</TableCell>
                       <TableCell className="text-right">
                         <Button
                           variant="ghost"
                           size="sm"
-                          disabled={o.status === "CANCELLED" || o.status === "DELIVERED"}
-                          onClick={() => setConfirmId(o.id)}
+                          disabled={
+                            o.orderStatus === "CANCELLED" || o.orderStatus === "DELIVERED"
+                          }
+                          onClick={() => setConfirmId(o.orderNumber)}
                         >
                           Cancel
                         </Button>
@@ -157,10 +175,10 @@ function OrdersPage() {
       </Card>
 
       <ConfirmDialog
-        open={!!confirmId}
+        open={confirmId != null}
         onOpenChange={(o) => !o && setConfirmId(null)}
         title="Cancel this order?"
-        description={`Order ${confirmId} will be marked as cancelled. This cannot be undone.`}
+        description={`Order #${confirmId} will be marked as cancelled. This cannot be undone.`}
         confirmText="Yes, cancel order"
         onConfirm={handleCancel}
         destructive

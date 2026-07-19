@@ -1,21 +1,21 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { authService, type User } from "@/services/authService";
+import { authService, type AuthResponse, type UserProfile } from "@/services/authService";
 
 interface AuthContextValue {
-  user: User | null;
+  user: UserProfile | null;
   token: string | null;
   isAuthenticated: boolean;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
+  register: (username: string, password: string) => Promise<void>;
   logout: () => void;
-  setUser: (u: User) => void;
+  setUser: (u: UserProfile) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUserState] = useState<User | null>(null);
+  const [user, setUserState] = useState<UserProfile | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -33,21 +33,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, []);
 
-  const persist = (t: string, u: User) => {
-    localStorage.setItem("auth_token", t);
+  const persist = (res: AuthResponse) => {
+    const u: UserProfile = { username: res.username, role: res.role };
+    localStorage.setItem("auth_token", res.token);
     localStorage.setItem("auth_user", JSON.stringify(u));
-    setToken(t);
+    setToken(res.token);
     setUserState(u);
   };
 
-  const login: AuthContextValue["login"] = async (email, password) => {
-    const { token, user } = await authService.login({ email, password });
-    persist(token, user);
+  const login: AuthContextValue["login"] = async (username, password) => {
+    const res = await authService.login({ username, password });
+    persist(res);
   };
 
-  const register: AuthContextValue["register"] = async (name, email, password) => {
-    const { token, user } = await authService.register({ name, email, password });
-    persist(token, user);
+  const register: AuthContextValue["register"] = async (username, password) => {
+    const res = await authService.register({ username, password });
+    persist(res);
   };
 
   const logout = () => {
@@ -56,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUserState(null);
   };
 
-  const setUser = (u: User) => {
+  const setUser = (u: UserProfile) => {
     setUserState(u);
     localStorage.setItem("auth_user", JSON.stringify(u));
   };

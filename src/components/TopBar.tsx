@@ -23,13 +23,7 @@ export function TopBar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
     navigate({ to: "/login" });
   };
 
-  const initials =
-    user?.name
-      ?.split(" ")
-      .map((s) => s[0])
-      .join("")
-      .slice(0, 2)
-      .toUpperCase() ?? "AD";
+  const initials = (user?.username ?? "AD").slice(0, 2).toUpperCase();
 
   return (
     <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b bg-background px-4 sm:px-6">
@@ -50,13 +44,13 @@ export function TopBar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
               <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
             <div className="hidden text-left sm:block">
-              <p className="text-sm font-medium leading-none">{user?.name}</p>
+              <p className="text-sm font-medium leading-none">{user?.username}</p>
               <p className="text-xs text-muted-foreground">{user?.role}</p>
             </div>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
+          <DropdownMenuLabel>{user?.username}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Link to="/profile">Profile</Link>
