@@ -1,35 +1,44 @@
 import api from "./api";
 import type { Paginated } from "./ordersService";
 
-export type PaymentStatus = "SUCCESS" | "PENDING" | "FAILED" | "REFUNDED";
-export type PaymentMethod = "CARD" | "UPI" | "WALLET" | "CASH";
+export type PaymentStatus = "CREATED" | "PENDING" | "SUCCESS" | "FAILED" | "CANCELLED" | "EXPIRED";
+export type PaymentMethod = "CARD" | "UPI" | "NET_BANKING" | "WALLET" | "CASH";
+export type PaymentGateway = "RAZORPAY" | "STRIPE" | "PAYPAL" | "PAYTM";
+export type Currency = "USD" | "INR" | "EUR" | "GBP";
 
-export interface Payment {
-  id: string;
+export interface PaymentResponseDto {
+  paymentId: string;
   orderId: string;
-  customer: string;
+  userId: string;
   amount: number;
-  method: PaymentMethod;
+  currency: Currency;
+  paymentMethod: PaymentMethod;
+  gateway: PaymentGateway;
   status: PaymentStatus;
   createdAt: string;
-  transactionRef: string;
-  cardLast4?: string;
+  updatedAt: string;
 }
 
-const METHODS: PaymentMethod[] = ["CARD", "UPI", "WALLET", "CASH"];
-const STATUSES: PaymentStatus[] = ["SUCCESS", "PENDING", "FAILED", "REFUNDED"];
+const METHODS: PaymentMethod[] = ["CARD", "UPI", "NET_BANKING", "WALLET", "CASH"];
+const GATEWAYS: PaymentGateway[] = ["RAZORPAY", "STRIPE", "PAYPAL", "PAYTM"];
+const CURRENCIES: Currency[] = ["USD", "INR", "EUR", "GBP"];
+const STATUSES: PaymentStatus[] = ["CREATED", "PENDING", "SUCCESS", "FAILED", "CANCELLED", "EXPIRED"];
 
-const MOCK_PAYMENTS: Payment[] = Array.from({ length: 64 }, (_, i) => ({
-  id: `PAY-${(2000 + i).toString()}`,
-  orderId: `ORD-${(1000 + i).toString()}`,
-  customer: ["Alice Chen", "Bob Smith", "Carla Diaz", "Dave Kim"][i % 4],
-  amount: Number(((i % 40) + 15.5).toFixed(2)),
-  method: METHODS[i % METHODS.length],
-  status: STATUSES[i % STATUSES.length],
-  createdAt: new Date(Date.now() - i * 5400_000).toISOString(),
-  transactionRef: `TXN${100000 + i}`,
-  cardLast4: i % 4 === 0 ? String(1000 + (i % 9000)).padStart(4, "0") : undefined,
-}));
+const MOCK_PAYMENTS: PaymentResponseDto[] = Array.from({ length: 64 }, (_, i) => {
+  const created = new Date(Date.now() - i * 5400_000);
+  return {
+    paymentId: `PAY-${2000 + i}`,
+    orderId: String(100000 + i),
+    userId: `user_${100 + (i % 12)}`,
+    amount: Number(((i % 40) + 15.5).toFixed(2)),
+    currency: CURRENCIES[i % CURRENCIES.length],
+    paymentMethod: METHODS[i % METHODS.length],
+    gateway: GATEWAYS[i % GATEWAYS.length],
+    status: STATUSES[i % STATUSES.length],
+    createdAt: created.toISOString(),
+    updatedAt: new Date(created.getTime() + 5 * 60_000).toISOString(),
+  };
+});
 
 export const paymentsService = {
   async list(params: {
@@ -37,7 +46,7 @@ export const paymentsService = {
     pageSize?: number;
     search?: string;
     status?: PaymentStatus | "ALL";
-  }): Promise<Paginated<Payment>> {
+  }): Promise<Paginated<PaymentResponseDto>> {
     await new Promise((r) => setTimeout(r, 300));
     const { page = 1, pageSize = 10, search = "", status = "ALL" } = params;
     let filtered = MOCK_PAYMENTS;
@@ -46,9 +55,9 @@ export const paymentsService = {
       const s = search.toLowerCase();
       filtered = filtered.filter(
         (p) =>
-          p.id.toLowerCase().includes(s) ||
+          p.paymentId.toLowerCase().includes(s) ||
           p.orderId.toLowerCase().includes(s) ||
-          p.customer.toLowerCase().includes(s),
+          p.userId.toLowerCase().includes(s),
       );
     }
     const start = (page - 1) * pageSize;
@@ -60,9 +69,9 @@ export const paymentsService = {
     };
   },
 
-  async get(id: string): Promise<Payment | undefined> {
+  async get(id: string): Promise<PaymentResponseDto | undefined> {
     await new Promise((r) => setTimeout(r, 200));
-    return MOCK_PAYMENTS.find((p) => p.id === id);
+    return MOCK_PAYMENTS.find((p) => p.paymentId === id);
   },
 
   _api: api,
