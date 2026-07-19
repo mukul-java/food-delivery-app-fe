@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ShoppingBag, CheckCircle2, Clock, DollarSign, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ordersService, type Order } from "@/services/ordersService";
+import { ordersService, type OrderResponse } from "@/services/ordersService";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -27,7 +27,7 @@ function DashboardPage() {
     pending: number;
     revenue: number;
   } | null>(null);
-  const [recent, setRecent] = useState<Order[]>([]);
+  const [recent, setRecent] = useState<OrderResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,7 +47,7 @@ function DashboardPage() {
   const cards = [
     { label: "Total Orders", value: stats.total, icon: ShoppingBag, color: "text-blue-600" },
     { label: "Delivered", value: stats.delivered, icon: CheckCircle2, color: "text-emerald-600" },
-    { label: "Pending", value: stats.pending, icon: Clock, color: "text-amber-600" },
+    { label: "In Progress", value: stats.pending, icon: Clock, color: "text-amber-600" },
     {
       label: "Revenue",
       value: `$${stats.revenue.toFixed(2)}`,
@@ -87,8 +87,8 @@ function DashboardPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Order ID</TableHead>
-                  <TableHead>Customer</TableHead>
+                  <TableHead>Order #</TableHead>
+                  <TableHead>User</TableHead>
                   <TableHead>Restaurant</TableHead>
                   <TableHead>Total</TableHead>
                   <TableHead>Status</TableHead>
@@ -96,13 +96,13 @@ function DashboardPage() {
               </TableHeader>
               <TableBody>
                 {recent.map((o) => (
-                  <TableRow key={o.id}>
-                    <TableCell className="font-medium">{o.id}</TableCell>
-                    <TableCell>{o.customer}</TableCell>
-                    <TableCell>{o.restaurant}</TableCell>
-                    <TableCell>${o.total.toFixed(2)}</TableCell>
+                  <TableRow key={o.orderNumber}>
+                    <TableCell className="font-medium">#{o.orderNumber}</TableCell>
+                    <TableCell>{o.userName}</TableCell>
+                    <TableCell>{o.restaurantName}</TableCell>
+                    <TableCell>${o.totalAmount.toFixed(2)}</TableCell>
                     <TableCell>
-                      <StatusBadge status={o.status} />
+                      <StatusBadge status={o.orderStatus} />
                     </TableCell>
                   </TableRow>
                 ))}

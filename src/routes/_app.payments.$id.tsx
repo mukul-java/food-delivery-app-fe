@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { paymentsService, type Payment } from "@/services/paymentsService";
+import { paymentsService, type PaymentResponseDto } from "@/services/paymentsService";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_app/payments/$id")({
 function PaymentDetailsPage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
-  const [payment, setPayment] = useState<Payment | null>(null);
+  const [payment, setPayment] = useState<PaymentResponseDto | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -40,21 +40,21 @@ function PaymentDetailsPage() {
   }
 
   const rows: [string, React.ReactNode][] = [
-    ["Payment ID", payment.id],
+    ["Payment ID", payment.paymentId],
     ["Order ID", <Link to="/orders" className="text-primary hover:underline">{payment.orderId}</Link>],
-    ["Customer", payment.customer],
-    ["Amount", `$${payment.amount.toFixed(2)}`],
-    ["Method", payment.method],
+    ["User ID", payment.userId],
+    ["Amount", `${payment.amount.toFixed(2)} ${payment.currency}`],
+    ["Payment Method", payment.paymentMethod],
+    ["Gateway", payment.gateway],
     ["Status", <StatusBadge status={payment.status} />],
-    ["Transaction Ref", payment.transactionRef],
-    ["Card", payment.cardLast4 ? `•••• ${payment.cardLast4}` : "—"],
-    ["Created", new Date(payment.createdAt).toLocaleString()],
+    ["Created At", new Date(payment.createdAt).toLocaleString()],
+    ["Updated At", new Date(payment.updatedAt).toLocaleString()],
   ];
 
   return (
     <div>
       <PageHeader
-        title={`Payment ${payment.id}`}
+        title={`Payment ${payment.paymentId}`}
         description="Transaction details"
         actions={
           <Button variant="outline" asChild>

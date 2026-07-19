@@ -17,23 +17,23 @@ export const Route = createFileRoute("/_app/profile")({
 
 function ProfilePage() {
   const { user, setUser } = useAuth();
-  const [name, setName] = useState(user?.name ?? "");
+  const [username, setUsername] = useState(user?.username ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
   const [phone, setPhone] = useState(user?.phone ?? "");
   const [saving, setSaving] = useState(false);
 
-  const initials = (user?.name ?? "AD")
-    .split(" ")
-    .map((s) => s[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+  const initials = (user?.username ?? "AD").slice(0, 2).toUpperCase();
 
   const onSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
-      const updated = await authService.updateProfile({ name, email, phone });
+      const updated = await authService.updateProfile({
+        username,
+        email,
+        phone,
+        role: user?.role,
+      });
       setUser(updated);
       toast.success("Profile updated");
     } catch {
@@ -52,9 +52,8 @@ function ProfilePage() {
             <Avatar className="h-24 w-24">
               <AvatarFallback className="text-2xl">{initials}</AvatarFallback>
             </Avatar>
-            <h3 className="mt-4 text-lg font-semibold">{user?.name}</h3>
+            <h3 className="mt-4 text-lg font-semibold">{user?.username}</h3>
             <p className="text-sm text-muted-foreground">{user?.role}</p>
-            <p className="mt-2 text-sm text-muted-foreground">{user?.email}</p>
           </CardContent>
         </Card>
 
@@ -65,8 +64,12 @@ function ProfilePage() {
           <CardContent>
             <form onSubmit={onSave} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full name</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
