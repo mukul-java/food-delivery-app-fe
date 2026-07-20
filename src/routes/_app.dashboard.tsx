@@ -74,8 +74,8 @@ function DashboardPage() {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Recent Orders</CardTitle>
           <Button asChild variant="ghost" size="sm">
-            <Link to="/orders">
-              View all <ArrowRight className="ml-1 h-4 w-4" />
+            <Link to={ROUTES.ORDERS}>
+              View all <ArrowRight className="ml-1 h-4 w-4" aria-hidden />
             </Link>
           </Button>
         </CardHeader>
@@ -84,11 +84,11 @@ function DashboardPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Order #</TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>Restaurant</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead scope="col">Order #</TableHead>
+                  <TableHead scope="col">User</TableHead>
+                  <TableHead scope="col">Restaurant</TableHead>
+                  <TableHead scope="col">Total</TableHead>
+                  <TableHead scope="col">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -97,7 +97,7 @@ function DashboardPage() {
                     <TableCell className="font-medium">#{o.orderNumber}</TableCell>
                     <TableCell>{o.userName}</TableCell>
                     <TableCell>{o.restaurantName}</TableCell>
-                    <TableCell>${o.totalAmount.toFixed(2)}</TableCell>
+                    <TableCell>{formatCurrency(o.totalAmount)}</TableCell>
                     <TableCell>
                       <StatusBadge status={o.orderStatus} />
                     </TableCell>
