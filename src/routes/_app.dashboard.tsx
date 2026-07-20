@@ -6,6 +6,7 @@ import { ordersService, type OrderResponse } from "@/services/ordersService";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
+import { StatCard } from "@/components/common/StatCard";
 import {
   Table,
   TableBody,
@@ -15,6 +16,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { formatCurrency } from "@/utils/formatCurrency";
+import { formatNumber } from "@/utils/formatNumber";
+import { ROUTES } from "@/constants/routes";
 
 export const Route = createFileRoute("/_app/dashboard")({
   component: DashboardPage,
@@ -45,15 +49,10 @@ function DashboardPage() {
   if (loading || !stats) return <LoadingSpinner label="Loading dashboard..." />;
 
   const cards = [
-    { label: "Total Orders", value: stats.total, icon: ShoppingBag, color: "text-blue-600" },
-    { label: "Delivered", value: stats.delivered, icon: CheckCircle2, color: "text-emerald-600" },
-    { label: "In Progress", value: stats.pending, icon: Clock, color: "text-amber-600" },
-    {
-      label: "Revenue",
-      value: `$${stats.revenue.toFixed(2)}`,
-      icon: DollarSign,
-      color: "text-purple-600",
-    },
+    { label: "Total Orders", value: formatNumber(stats.total), icon: ShoppingBag, color: "text-blue-600" },
+    { label: "Delivered", value: formatNumber(stats.delivered), icon: CheckCircle2, color: "text-emerald-600" },
+    { label: "In Progress", value: formatNumber(stats.pending), icon: Clock, color: "text-amber-600" },
+    { label: "Revenue", value: formatCurrency(stats.revenue), icon: DollarSign, color: "text-purple-600" },
   ];
 
   return (
@@ -61,15 +60,13 @@ function DashboardPage() {
       <PageHeader title="Dashboard" description="Overview of your food delivery operations" />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
-          <Card key={c.label}>
-            <CardContent className="flex items-center justify-between p-6">
-              <div>
-                <p className="text-sm text-muted-foreground">{c.label}</p>
-                <p className="mt-1 text-2xl font-semibold">{c.value}</p>
-              </div>
-              <c.icon className={`h-8 w-8 ${c.color}`} />
-            </CardContent>
-          </Card>
+          <StatCard
+            key={c.label}
+            label={c.label}
+            value={c.value}
+            icon={c.icon}
+            iconClassName={c.color}
+          />
         ))}
       </div>
 
@@ -77,8 +74,8 @@ function DashboardPage() {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Recent Orders</CardTitle>
           <Button asChild variant="ghost" size="sm">
-            <Link to="/orders">
-              View all <ArrowRight className="ml-1 h-4 w-4" />
+            <Link to={ROUTES.ORDERS}>
+              View all <ArrowRight className="ml-1 h-4 w-4" aria-hidden />
             </Link>
           </Button>
         </CardHeader>
@@ -87,11 +84,11 @@ function DashboardPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Order #</TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>Restaurant</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead scope="col">Order #</TableHead>
+                  <TableHead scope="col">User</TableHead>
+                  <TableHead scope="col">Restaurant</TableHead>
+                  <TableHead scope="col">Total</TableHead>
+                  <TableHead scope="col">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -100,7 +97,7 @@ function DashboardPage() {
                     <TableCell className="font-medium">#{o.orderNumber}</TableCell>
                     <TableCell>{o.userName}</TableCell>
                     <TableCell>{o.restaurantName}</TableCell>
-                    <TableCell>${o.totalAmount.toFixed(2)}</TableCell>
+                    <TableCell>{formatCurrency(o.totalAmount)}</TableCell>
                     <TableCell>
                       <StatusBadge status={o.orderStatus} />
                     </TableCell>
