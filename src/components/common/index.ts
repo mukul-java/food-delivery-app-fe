@@ -3,6 +3,8 @@ export { ErrorState } from "./ErrorState";
 export { LoadingSkeleton } from "./LoadingSkeleton";
 export { StatCard } from "./StatCard";
 export { Breadcrumbs } from "./Breadcrumbs";
+export { FilterPanel } from "./FilterPanel";
+export type { FilterPanelProps, FilterOption } from "./FilterPanel";
 export { LoadingSpinner } from "@/components/LoadingSpinner";
 export { PageHeader } from "@/components/PageHeader";
 export { SearchBar } from "@/components/SearchBar";
