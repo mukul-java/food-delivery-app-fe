@@ -1,21 +1,32 @@
 import api from "./axios";
-import { API } from "../constants/api";
-import { AuthRequest } from "../types/auth";
+import { API_ENDPOINTS } from "@/constants/api";
+import {
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+  RegisterResponse,
+} from "@/types/auth";
 
-export const login = async (request: AuthRequest) => {
-  const response = await api.post<string>(API.TOKEN, request);
-  return response.data;
-};
+export const authApi = {
 
-export const register = async (request: unknown) => {
-  const response = await api.post(API.REGISTER, request);
-  return response.data;
-};
+  async login(request: LoginRequest): Promise<LoginResponse> {
 
-export const validateToken = async (token: string) => {
-  const response = await api.get(API.VALIDATE, {
-    params: { token },
-  });
+    const response = await api.post<LoginResponse>(
+      API_ENDPOINTS.AUTH.LOGIN,
+      request
+    );
 
-  return response.data;
+    return response.data;
+  },
+
+  async register(request: RegisterRequest): Promise<RegisterResponse> {
+
+    const response = await api.post<RegisterResponse>(
+      API_ENDPOINTS.AUTH.REGISTER,
+      request
+    );
+
+    return response.data;
+  }
+
 };

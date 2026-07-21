@@ -1,56 +1,57 @@
-import api from "./api";
+import { authApi } from "@/api/auth.api";
+import { storage } from "@/utils/storage";
+import {
+  LoginRequest,
+  RegisterRequest,
+  LoginData,
+  User,
+} from "@/types/auth";
 
-export interface AuthResponse {
-  token: string;
-  username: string;
-  role: string;
-}
+class AuthService {
 
-export interface LoginPayload {
-  username: string;
-  password: string;
-}
-export interface RegisterPayload {
-  username: string;
-  password: string;
-  role?: string;
-}
+  async login(request: LoginRequest): Promise<LoginData> {
 
-export interface UserProfile {
-  username: string;
-  role: string;
-  email?: string;
-  phone?: string;
-}
+    const response = await authApi.login(request);
 
-export const authService = {
-  async login(payload: LoginPayload): Promise<AuthResponse> {
-    // Real: return api.post<AuthResponse>('/auth/login', payload).then(r => r.data);
-    await new Promise((r) => setTimeout(r, 500));
-    if (!payload.username || !payload.password) throw new Error("Invalid credentials");
-    return { token: "mock-jwt-token", username: payload.username, role: "ADMIN" };
-  },
+    if (!response.success) {
+      throw new Error(response.message);
+    }
 
-  async register(payload: RegisterPayload): Promise<AuthResponse> {
-    // Real: return api.post<AuthResponse>('/auth/register', payload).then(r => r.data);
-    await new Promise((r) => setTimeout(r, 500));
-    return { token: "mock-jwt-token", username: payload.username, role: payload.role ?? "ADMIN" };
-  },
+    storage.saveToken(response.data.token);
+    storage.saveUser(response.data);
 
-  async updateProfile(payload: Partial<UserProfile>): Promise<UserProfile> {
-    await new Promise((r) => setTimeout(r, 400));
-    return {
-      username: payload.username ?? "admin",
-      role: payload.role ?? "ADMIN",
-      email: payload.email,
-      phone: payload.phone,
-    };
-  },
+    return response.data;
+  }
+
+  async register(request: RegisterRequest): Promise<User> {
+
+    const response = await authApi.register(request);
+
+    if (!response.success) {
+      throw new Error(response.message);
+    }
+
+    return response.data;
+  }
 
   logout() {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("auth_user");
-  },
 
-  _api: api,
-};
+    storage.clearAuth();
+
+  }
+
+  getCurrentUser() {
+
+    return storage.getUser();
+
+  }
+
+  isAuthenticated() {
+
+    return !!storage.getToken();
+
+  }
+
+}
+
+export const authService = new AuthService();

@@ -29,8 +29,10 @@ function LoginPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await login(username, password);
-      toast.success("Welcome back!");
+      await login({
+        username,
+        password,
+      }); toast.success("Welcome back!");
       navigate({ to: ROUTES.DASHBOARD });
     } catch (err) {
       toast.error((err as Error).message ?? "Login failed");

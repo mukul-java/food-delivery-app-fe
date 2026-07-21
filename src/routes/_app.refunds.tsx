@@ -22,7 +22,7 @@ import {
   DEFAULT_PAGE_SIZE,
   REFUND_STATUS_OPTIONS,
 } from "@/constants/tables";
-import { formatCurrency } from "@/utils/formatCurrency";
+import { currency } from "@/utils/currency";
 
 export const Route = createFileRoute("/_app/refunds")({
   component: RefundsPage,
@@ -129,7 +129,7 @@ function RefundsPage() {
                       <TableCell>{r.paymentId}</TableCell>
                       <TableCell>{r.orderId}</TableCell>
                       <TableCell>{r.customer}</TableCell>
-                      <TableCell>{formatCurrency(r.amount)}</TableCell>
+                      <TableCell>{currency(r.amount)}</TableCell>
                       <TableCell className="max-w-[200px] truncate">
                         {r.reason}
                       </TableCell>

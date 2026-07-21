@@ -19,7 +19,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { DEFAULT_PAGE_SIZE, ORDER_STATUS_OPTIONS } from "@/constants/tables";
-import { formatCurrency } from "@/utils/formatCurrency";
+import { currency } from "@/utils/currency";
 import { formatDateTime } from "@/utils/formatDate";
 
 export const Route = createFileRoute("/_app/orders")({
@@ -125,7 +125,7 @@ function OrdersPage() {
                       <TableCell>{o.restaurantName}</TableCell>
                       <TableCell>{o.userName}</TableCell>
                       <TableCell>{o.orderItems.length}</TableCell>
-                      <TableCell>{formatCurrency(o.totalAmount)}</TableCell>
+                      <TableCell>{currency(o.totalAmount)}</TableCell>
                       <TableCell>
                         <StatusBadge status={o.orderStatus} />
                       </TableCell>

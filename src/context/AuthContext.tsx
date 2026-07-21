@@ -1,74 +1,79 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { authService, type AuthResponse, type UserProfile } from "@/services/authService";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+
+import { authService } from "@/services/authService";
+import { storage } from "@/utils/storage";
+import {
+  LoginData,
+  LoginRequest,
+  RegisterRequest,
+  User,
+} from "@/types/auth";
 
 interface AuthContextValue {
-  user: UserProfile | null;
-  token: string | null;
+  user: LoginData | null;
   isAuthenticated: boolean;
   loading: boolean;
-  login: (username: string, password: string) => Promise<void>;
-  register: (username: string, password: string) => Promise<void>;
+
+  login: (request: LoginRequest) => Promise<void>;
+
+  register: (request: RegisterRequest) => Promise<User>;
+
   logout: () => void;
-  setUser: (u: UserProfile) => void;
+
+  setUser: (user: LoginData) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUserState] = useState<UserProfile | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [user, setUserState] = useState<LoginData | null>(null);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const t = localStorage.getItem("auth_token");
-    const u = localStorage.getItem("auth_user");
-    if (t && u) {
-      setToken(t);
-      try {
-        setUserState(JSON.parse(u));
-      } catch {
-        // ignore
-      }
+    const currentUser = storage.getUser();
+
+    if (currentUser) {
+      setUserState(currentUser);
     }
+
     setLoading(false);
   }, []);
 
-  const persist = (res: AuthResponse) => {
-    const u: UserProfile = { username: res.username, role: res.role };
-    localStorage.setItem("auth_token", res.token);
-    localStorage.setItem("auth_user", JSON.stringify(u));
-    setToken(res.token);
-    setUserState(u);
+  const login = async (request: LoginRequest) => {
+    const loggedInUser = await authService.login(request);
+
+    setUserState(loggedInUser);
   };
 
-  const login: AuthContextValue["login"] = async (username, password) => {
-    const res = await authService.login({ username, password });
-    persist(res);
-  };
-
-  const register: AuthContextValue["register"] = async (username, password) => {
-    const res = await authService.register({ username, password });
-    persist(res);
+  const register = async (request: RegisterRequest) => {
+    return await authService.register(request);
   };
 
   const logout = () => {
     authService.logout();
-    setToken(null);
+
     setUserState(null);
   };
 
-  const setUser = (u: UserProfile) => {
-    setUserState(u);
-    localStorage.setItem("auth_user", JSON.stringify(u));
+  const setUser = (user: LoginData) => {
+    storage.saveUser(user);
+
+    setUserState(user);
   };
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        token,
-        isAuthenticated: !!token,
         loading,
+        isAuthenticated: !!user,
         login,
         register,
         logout,
@@ -81,7 +86,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
-  return ctx;
+  const context = useContext(AuthContext);
+
+  if (!context) {
+    throw new Error("useAuth must be used inside AuthProvider");
+  }
+
+  return context;
 }
