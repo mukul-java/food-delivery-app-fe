@@ -1,11 +1,43 @@
-export const API = {
-  AUTH: "/auth",
-  TOKEN: "/auth/token",
-  REGISTER: "/auth/register",
-  VALIDATE: "/auth/validate",
+export const API_ENDPOINTS = {
 
-  RESTAURANT: "/restaurant",
-  ORDER: "/order",
-  PAYMENT: "/payment",
-  USER: "/user",
+    AUTH: {
+
+        LOGIN: "/auth/login",
+
+        REGISTER: "/auth/register",
+
+        VALIDATE: "/auth/validate"
+
+    },
+
+    RESTAURANT: {
+
+        BASE: "/restaurant"
+
+    },
+
+    MENU: {
+
+        BASE: "/menu"
+
+    },
+
+    ORDER: {
+
+        BASE: "/order"
+
+    },
+
+    PAYMENT: {
+
+        BASE: "/payment"
+
+    },
+
+    USER: {
+
+        BASE: "/user"
+
+    }
+
 };

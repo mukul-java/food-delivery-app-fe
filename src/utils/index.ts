@@ -1,5 +1,5 @@
 export * from "./formatDate";
-export * from "./formatCurrency";
+export * from "./currency";
 export * from "./formatNumber";
 export * from "./string";
-export * from "./validation";
+export * from "./validator";

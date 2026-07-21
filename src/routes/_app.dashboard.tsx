@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { formatCurrency } from "@/utils/formatCurrency";
+import { currency } from "@/utils/currency";
 import { formatNumber } from "@/utils/formatNumber";
 import { ROUTES } from "@/constants/routes";
 
@@ -52,7 +52,7 @@ function DashboardPage() {
     { label: "Total Orders", value: formatNumber(stats.total), icon: ShoppingBag, color: "text-blue-600" },
     { label: "Delivered", value: formatNumber(stats.delivered), icon: CheckCircle2, color: "text-emerald-600" },
     { label: "In Progress", value: formatNumber(stats.pending), icon: Clock, color: "text-amber-600" },
-    { label: "Revenue", value: formatCurrency(stats.revenue), icon: DollarSign, color: "text-purple-600" },
+    { label: "Revenue", value: currency(stats.revenue), icon: DollarSign, color: "text-purple-600" },
   ];
 
   return (
@@ -97,7 +97,7 @@ function DashboardPage() {
                     <TableCell className="font-medium">#{o.orderNumber}</TableCell>
                     <TableCell>{o.userName}</TableCell>
                     <TableCell>{o.restaurantName}</TableCell>
-                    <TableCell>{formatCurrency(o.totalAmount)}</TableCell>
+                    <TableCell>{currency(o.totalAmount)}</TableCell>
                     <TableCell>
                       <StatusBadge status={o.orderStatus} />
                     </TableCell>

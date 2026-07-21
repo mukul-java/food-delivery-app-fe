@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
 import { FormField, FormWrapper, SubmitButton } from "@/components/forms";
-import { minLength, matches } from "@/utils/validation";
+import { minLength, matches } from "@/utils/validator";
 import { ROUTES } from "@/constants/routes";
 
 export const Route = createFileRoute("/register")({
@@ -25,6 +25,12 @@ function RegisterPage() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [street, setStreet] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [zipCode, setZipCode] = useState("");
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,9 +39,23 @@ function RegisterPage() {
     if (!matches(password, confirm)) return toast.error("Passwords do not match");
     setSubmitting(true);
     try {
-      await register(username, password);
-      toast.success("Account created");
-      navigate({ to: ROUTES.DASHBOARD });
+      await register({
+        fullName,
+        username,
+        password,
+        phoneNumber: Number(phoneNumber),
+        userRole: "CUSTOMER",
+        address: {
+          street,
+          city,
+          state,
+          zipCode
+        }
+      });
+      toast.success("Registration successful");
+      navigate({
+        to: ROUTES.LOGIN,
+      });
     } catch (err) {
       toast.error((err as Error).message ?? "Registration failed");
     } finally {
