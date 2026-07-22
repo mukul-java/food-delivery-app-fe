@@ -18,16 +18,25 @@ export function useCart() {
   }, [refresh]);
 
   const count = items.reduce((s, i) => s + i.quantity, 0);
+  const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
+  const deliveryFee = items.length ? 2.99 : 0;
+  const tax = Number((subtotal * 0.08).toFixed(2));
+  const total = Number((subtotal + deliveryFee + tax).toFixed(2));
+
   const totals = {
-    subtotal: items.reduce((s, i) => s + i.price * i.quantity, 0),
-    deliveryFee: items.length ? 2.99 : 0,
-    get tax() {
-      return Number((this.subtotal * 0.08).toFixed(2));
-    },
-    get total() {
-      return Number((this.subtotal + this.deliveryFee + this.tax).toFixed(2));
-    },
+    subtotal: Number(subtotal.toFixed(2)),
+    deliveryFee,
+    tax,
+    total,
   };
 
-  return { items, count, totals, ...cartService };
+  return {
+    items,
+    count,
+    totals,
+    add: cartService.add,
+    setQuantity: cartService.setQuantity,
+    remove: cartService.remove,
+    clear: cartService.clear,
+  };
 }
