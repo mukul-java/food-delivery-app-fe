@@ -29,11 +29,14 @@ function LoginPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await login({
-        username,
-        password,
-      }); toast.success("Welcome back!");
-      navigate({ to: ROUTES.DASHBOARD });
+      await login({ username, password });
+      toast.success("Welcome back!");
+      const role =
+        (JSON.parse(localStorage.getItem("currentUser") ?? "null")?.role) as
+          | string
+          | undefined;
+      if (role === "CUSTOMER") navigate({ to: "/restaurants" });
+      else navigate({ to: ROUTES.DASHBOARD });
     } catch (err) {
       toast.error((err as Error).message ?? "Login failed");
     } finally {
