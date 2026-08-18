@@ -57,7 +57,7 @@ function RestaurantDetailsPage() {
       setDescription(item.description || "");
       setPrice(item.price.toString());
       setCategory(item.category || "");
-      setAvailableQuantity(item.availableQuantity.toString());
+      setAvailableQuantity((item.quantity ?? item.availableQuantity ?? 0).toString());
     } else {
       setEditingItem(null);
       setName("");
@@ -94,6 +94,7 @@ function RestaurantDetailsPage() {
           description,
           price: Number(price),
           category,
+          quantity: Number(availableQuantity),
           availableQuantity: Number(availableQuantity),
         });
         toast.success("Food item updated");
@@ -104,6 +105,7 @@ function RestaurantDetailsPage() {
           description,
           price: Number(price),
           category,
+          quantity: Number(availableQuantity),
           availableQuantity: Number(availableQuantity),
         });
         toast.success("Food item added");
@@ -185,7 +187,7 @@ function RestaurantDetailsPage() {
                   {item.description || "No description"}
                 </p>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Qty: {item.availableQuantity}</span>
+                  <span className="text-sm font-medium">Qty: {item.quantity ?? item.availableQuantity ?? 0}</span>
                   <Button variant="outline" size="sm" onClick={() => openDialog(item)}>
                     <Edit className="mr-2 h-4 w-4" /> Edit
                   </Button>

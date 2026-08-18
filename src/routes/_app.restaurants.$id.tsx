@@ -185,6 +185,7 @@ function RestaurantDetailPage() {
           {filteredItems.map((item) => {
             const inCartItem = cart?.items.find((i) => i.foodItemId === item.id);
             const currentQty = inCartItem?.quantity || 0;
+            const availQty = item.quantity ?? item.availableQuantity ?? 0;
 
             return (
               <Card key={item.id} className="flex flex-col justify-between p-4 hover:border-primary/50 transition-colors">
@@ -211,8 +212,8 @@ function RestaurantDetailPage() {
 
                 <div className="flex items-center justify-between pt-4 mt-2 border-t">
                   <span className="text-xs text-muted-foreground">
-                    {item.availableQuantity > 0 ? (
-                      <span className="text-green-600 font-medium">In Stock</span>
+                    {availQty > 0 ? (
+                      <span className="text-emerald-600 font-semibold">In Stock ({availQty})</span>
                     ) : (
                       <span className="text-destructive font-medium">Out of Stock</span>
                     )}
@@ -236,7 +237,7 @@ function RestaurantDetailPage() {
                         size="icon"
                         className="h-7 w-7"
                         onClick={() => updateItemQuantity(item.id, currentQty + 1)}
-                        disabled={item.availableQuantity <= currentQty}
+                        disabled={availQty <= currentQty}
                       >
                         <Plus className="h-3.5 w-3.5" />
                       </Button>
@@ -245,7 +246,7 @@ function RestaurantDetailPage() {
                     <Button
                       size="sm"
                       className="gap-1 font-semibold"
-                      disabled={item.availableQuantity <= 0}
+                      disabled={availQty <= 0}
                       onClick={() =>
                         addItem(restaurant.id, {
                           id: item.id,

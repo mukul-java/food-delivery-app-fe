@@ -29,7 +29,8 @@ export interface FoodItemSummary {
   name: string;
   price: number;
   category?: string;
-  availableQuantity: number;
+  quantity?: number;
+  availableQuantity?: number;
   description?: string;
 }
 
@@ -51,7 +52,8 @@ export interface FoodItemRequest {
   price: number;
   description?: string;
   category?: string;
-  availableQuantity: number;
+  quantity?: number;
+  availableQuantity?: number;
 }
 
 export interface FoodItemUpdateRequest extends FoodItemRequest {

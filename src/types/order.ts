@@ -1,10 +1,13 @@
 import { Address } from "./auth";
 
 export type OrderStatus =
+  | "PENDING"
+  | "ACCEPTED"
   | "PLACED"
   | "CONFIRMED"
   | "PREPARING"
   | "OUT_FOR_DELIVERY"
+  | "COMPLETED"
   | "DELIVERED"
   | "CANCELLED";
 
@@ -30,7 +33,8 @@ export interface OrderResponse {
   restaurantId: number;
   totalAmount: number;
   orderStatus: OrderStatus;
-  createdAt: string;
+  createdAt?: string;
+  orderTime?: string;
   deliveryAddress?: Address;
   items?: OrderItem[];
 }

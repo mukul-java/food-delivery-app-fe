@@ -80,13 +80,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const closeCart = () => setIsCartOpen(false);
   const toggleCart = () => setIsCartOpen((prev) => !prev);
 
-  const executeAddToCart = async (dto: AddToCartRequestDto) => {
+  const executeAddToCart = async (dto: AddToCartRequestDto, showToast = true) => {
     try {
       const updated = await cartService.addToCart(dto);
       setCart(updated);
-      toast.success(`Added ${dto.name} to cart`);
+      if (showToast) {
+        toast.success(`Added ${dto.name} to cart`);
+      }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to add item to cart");
+      toast.error(err.response?.data?.message || "Failed to update cart");
     }
   };
 
@@ -117,14 +119,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    await executeAddToCart(dto);
+    await executeAddToCart(dto, true);
   };
 
   const handleConfirmClearAndAdd = async () => {
     if (!conflictModal.pendingDto) return;
     try {
       await cartService.clearCart(userId);
-      await executeAddToCart(conflictModal.pendingDto);
+      await executeAddToCart(conflictModal.pendingDto, true);
     } catch (err) {
       toast.error("Failed to replace cart");
     } finally {
@@ -154,17 +156,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const existingItem = cart.items.find((i) => i.foodItemId === foodItemId);
     if (!existingItem) return;
 
+    // Calculate Delta: Backend CartServiceImpl increments by request.quantity
+    const deltaQuantity = newQuantity - existingItem.quantity;
+    if (deltaQuantity === 0) return;
+
     const dto: AddToCartRequestDto = {
       userId,
       restaurantId: cart.restaurantId,
       foodItemId,
       name: existingItem.name,
       price: existingItem.price,
-      quantity: newQuantity,
+      quantity: deltaQuantity,
       specialInstructions: existingItem.specialInstructions,
     };
 
-    await executeAddToCart(dto);
+    await executeAddToCart(dto, false);
   };
 
   const clearCart = async () => {

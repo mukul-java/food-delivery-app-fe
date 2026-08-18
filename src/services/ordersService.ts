@@ -1,7 +1,6 @@
 import api from "./api";
 import type { OrderRequest, OrderResponse, OrderStats, OrderStatus, PagedResponse } from "@/types/order";
 
-// Adapter: converts backend PagedResponse → internal Paginated shape used by the UI
 export interface Paginated<T> {
   data: T[];
   total: number;
@@ -11,30 +10,72 @@ export interface Paginated<T> {
 
 export type { OrderStatus, OrderResponse, OrderRequest };
 
-function adaptPaged<T>(res: PagedResponse<T>, page: number, pageSize: number): Paginated<T> {
+function adaptPaged<T>(res: PagedResponse<T> | T[], page: number, pageSize: number): Paginated<T> {
+  if (Array.isArray(res)) {
+    return {
+      data: res,
+      total: res.length,
+      page,
+      pageSize,
+    };
+  }
   return {
-    data: res.content,
-    total: res.totalElements,
+    data: res?.content || [],
+    total: res?.totalElements ?? (res?.content?.length || 0),
     page,
     pageSize,
   };
 }
 
 export const ordersService = {
+  /**
+   * Fetches paginated orders with optional userId and status filter.
+   * GET /api/v1/order?userId={userId}&status={status}&page=0&pageSize=10
+   */
   async list(params: {
+    userId?: string | number;
+    status?: OrderStatus | "ALL";
     page?: number;
     pageSize?: number;
     search?: string;
-    status?: OrderStatus | "ALL";
   }): Promise<Paginated<OrderResponse>> {
     const page = params.page ?? 1;
     const pageSize = params.pageSize ?? 10;
+    const backendPage = Math.max(0, page - 1);
+
     const response = await api.get<PagedResponse<OrderResponse>>("/order", {
       params: {
-        page,
+        userId: params.userId || undefined,
+        status: params.status && params.status !== "ALL" ? params.status : undefined,
+        page: backendPage,
         pageSize,
         search: params.search || undefined,
-        status: params.status !== "ALL" ? params.status : undefined,
+      },
+    });
+    return adaptPaged(response.data, page, pageSize);
+  },
+
+  /**
+   * Fetches paginated orders for a specific user.
+   * GET /api/v1/order/user/{userId}?status={status}&page=0&pageSize=10
+   */
+  async getUserOrders(
+    userId: string | number,
+    params?: {
+      status?: OrderStatus | "ALL";
+      page?: number;
+      pageSize?: number;
+    }
+  ): Promise<Paginated<OrderResponse>> {
+    const page = params?.page ?? 1;
+    const pageSize = params?.pageSize ?? 10;
+    const backendPage = Math.max(0, page - 1);
+
+    const response = await api.get<PagedResponse<OrderResponse>>(`/order/user/${userId}`, {
+      params: {
+        status: params?.status && params?.status !== "ALL" ? params.status : undefined,
+        page: backendPage,
+        pageSize,
       },
     });
     return adaptPaged(response.data, page, pageSize);
@@ -55,9 +96,10 @@ export const ordersService = {
       "/order/checkout",
       checkoutData
     );
-    const data = "data" in response.data && (response.data as { data: OrderResponse }).data
-      ? (response.data as { data: OrderResponse }).data
-      : (response.data as OrderResponse);
+    const data =
+      "data" in response.data && (response.data as { data: OrderResponse }).data
+        ? (response.data as { data: OrderResponse }).data
+        : (response.data as OrderResponse);
     return data;
   },
 

@@ -5,10 +5,13 @@ import type { RefundStatus } from "@/services/refundsService";
 export const DEFAULT_PAGE_SIZE = 10;
 
 export const ORDER_STATUS_OPTIONS: OrderStatus[] = [
+  "PENDING",
+  "ACCEPTED",
   "PLACED",
   "CONFIRMED",
   "PREPARING",
   "OUT_FOR_DELIVERY",
+  "COMPLETED",
   "DELIVERED",
   "CANCELLED",
 ];
