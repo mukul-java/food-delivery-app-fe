@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { UtensilsCrossed } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { PRIMARY_NAV, RESTAURANT_OWNER_NAV } from "@/constants/navigation";
+import { getNavForRole } from "@/constants/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { APP_LABELS } from "@/constants/labels";
 
@@ -9,7 +9,8 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { user } = useAuth();
   
-  const navItems = user?.role === "RESTAURANT_OWNER" ? RESTAURANT_OWNER_NAV : PRIMARY_NAV;
+  const userRole = user?.role || user?.userRole;
+  const navItems = getNavForRole(userRole);
 
   return (
     <aside
@@ -30,7 +31,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       <nav className="flex-1 space-y-1.5 p-3">
         {navItems.map((item) => {
           const active =
-            pathname === item.to || pathname.startsWith(item.to + "/");
+            pathname === item.to || (item.to !== "/" && pathname.startsWith(item.to + "/"));
           const Icon = item.icon;
           return (
             <Link
@@ -52,6 +53,18 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           );
         })}
       </nav>
+      {userRole && (
+        <div className="px-4 py-2.5 border-t border-sidebar-border bg-muted/20">
+          <div className="flex items-center justify-between text-xs text-sidebar-foreground/80">
+            <span className="truncate font-medium max-w-[110px]" title={user?.username}>
+              {user?.username}
+            </span>
+            <span className="rounded bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary uppercase tracking-wider">
+              {userRole.replace("ROLE_", "").replace("_", " ")}
+            </span>
+          </div>
+        </div>
+      )}
       <div className="border-t border-sidebar-border p-4 text-xs text-sidebar-foreground/50">
         {APP_LABELS.COPYRIGHT}
       </div>

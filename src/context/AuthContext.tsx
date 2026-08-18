@@ -13,42 +13,38 @@ import {
   LoginRequest,
   RegisterRequest,
   User,
+  UserRole,
 } from "@/types/auth";
+import { hasPermission as checkPermission, Permission } from "@/constants/permissions";
 
 interface AuthContextValue {
   user: LoginData | null;
   isAuthenticated: boolean;
   loading: boolean;
-
   login: (request: LoginRequest) => Promise<void>;
-
   register: (request: RegisterRequest) => Promise<User>;
-
   logout: () => void;
-
   setUser: (user: LoginData) => void;
+  hasRole: (roles: UserRole | UserRole[]) => boolean;
+  hasPermission: (permission: Permission) => boolean;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUserState] = useState<LoginData | null>(null);
-
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const currentUser = storage.getUser();
-
     if (currentUser) {
       setUserState(currentUser);
     }
-
     setLoading(false);
   }, []);
 
   const login = async (request: LoginRequest) => {
     const loggedInUser = await authService.login(request);
-
     setUserState(loggedInUser);
   };
 
@@ -58,14 +54,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     authService.logout();
-
     setUserState(null);
   };
 
-  const setUser = (user: LoginData) => {
-    storage.saveUser(user);
+  const setUser = (newUser: LoginData) => {
+    storage.saveUser(newUser);
+    setUserState(newUser);
+  };
 
-    setUserState(user);
+  const hasRole = (roles: UserRole | UserRole[]) => {
+    if (!user) return false;
+    const roleList = Array.isArray(roles) ? roles : [roles];
+    const userRole = user.role || user.userRole;
+    if (!userRole) return false;
+    return roleList.includes(userRole as UserRole);
+  };
+
+  const userHasPermission = (permission: Permission) => {
+    if (!user) return false;
+    const userRole = user.role || user.userRole;
+    return checkPermission(userRole, permission);
   };
 
   return (
@@ -78,6 +86,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         setUser,
+        hasRole,
+        hasPermission: userHasPermission,
       }}
     >
       {children}

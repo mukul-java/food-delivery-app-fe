@@ -98,9 +98,12 @@ function RegisterPage() {
 
     setSubmitting(true);
     try {
+      const emailVal = username.trim();
+      const unameVal = emailVal.includes("@") ? emailVal.split("@")[0] : emailVal;
       await register({
         fullName: fullName.trim(),
-        username: username.trim(),
+        username: unameVal,
+        email: emailVal,
         password,
         phoneNumber: Number(phoneNumber),
         userRole,
@@ -109,6 +112,7 @@ function RegisterPage() {
           city: city.trim(),
           state: state.trim(),
           zipCode: zipCode.trim(),
+          country: "USA",
         },
       });
       toast.success("Registration successful. Please sign in.");
@@ -126,7 +130,7 @@ function RegisterPage() {
         <ThemeToggle />
       </div>
       <Card className="w-full max-w-lg shadow-xl border-border overflow-hidden">
-        <div className="h-1 bg-gradient-to-r from-zinc-700 via-zinc-800 to-zinc-900" />
+        <div className="h-1 bg-gradient-to-r from-amber-500 via-primary to-emerald-500" />
         <CardHeader className="space-y-3 text-center pb-2">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
             <UtensilsCrossed className="h-7 w-7" aria-hidden />
@@ -205,7 +209,7 @@ function RegisterPage() {
                 <SelectContent>
                   <SelectItem value="CUSTOMER">Customer</SelectItem>
                   <SelectItem value="RESTAURANT_OWNER">Restaurant Owner</SelectItem>
-                  <SelectItem value="DELIVERY_PARTNER">Delivery Partner</SelectItem>
+                  <SelectItem value="DELIVERY_AGENT">Delivery Agent</SelectItem>
                   <SelectItem value="ADMIN">Admin</SelectItem>
                 </SelectContent>
               </Select>

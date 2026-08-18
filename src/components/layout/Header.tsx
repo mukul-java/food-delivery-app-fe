@@ -80,13 +80,16 @@ export function Header({ onOpenSidebar }: { onOpenSidebar: () => void }) {
                 {user?.username}
               </p>
               <p className="truncate text-xs text-muted-foreground">
-                {user?.role}
+                {(user?.role || user?.userRole || "").replace("ROLE_", "").replace("_", " ")}
               </p>
             </div>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuLabel>{user?.username}</DropdownMenuLabel>
+          <DropdownMenuLabel>
+            <p className="truncate text-sm font-semibold">{user?.username}</p>
+            {user?.email && <p className="truncate text-xs text-muted-foreground font-normal">{user.email}</p>}
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Link to={ROUTES.PROFILE}>Profile</Link>

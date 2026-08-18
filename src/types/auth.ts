@@ -1,10 +1,8 @@
+import { Role } from "@/constants/roles";
+
 // ------- Shared -------
 
-export type UserRole =
-  | "ADMIN"
-  | "CUSTOMER"
-  | "RESTAURANT_OWNER"
-  | "DELIVERY_PARTNER";
+export type UserRole = Role;
 
 export interface Address {
   street: string;
@@ -12,13 +10,15 @@ export interface Address {
   state: string;
   zipCode: string;
   country?: string;
-  zipcode?: string; // Backend sometimes sends lowercase C
+  zipcode?: string;
 }
 
 // ------- Auth -------
 
 export interface LoginRequest {
-  username: string;
+  identity?: string;
+  username?: string;
+  email?: string;
   password: string;
 }
 
@@ -26,8 +26,11 @@ export interface LoginData {
   token: string;
   username: string;
   role: UserRole;
-  id?: string | number;
   email?: string;
+  userRole?: UserRole;
+  id?: number;
+  fullName?: string;
+  phoneNumber?: number;
   address?: Address;
 }
 
@@ -40,6 +43,7 @@ export interface LoginResponse {
 export interface RegisterRequest {
   fullName: string;
   username: string;
+  email?: string;
   password: string;
   phoneNumber: number;
   userRole: UserRole;
@@ -49,6 +53,7 @@ export interface RegisterRequest {
 export interface User {
   id: number;
   fullName: string;
+  username: string;
   email: string;
   phoneNumber: number;
   address: Address;
@@ -68,11 +73,12 @@ export interface UserResponse {
 }
 
 export interface UpdateUserRequest {
-  id: number;
-  username: string;
-  fullName: string;
-  phoneNumber: number;
-  address: Address;
+  id?: number;
+  username?: string;
+  fullName?: string;
+  email?: string;
+  phoneNumber?: number;
+  address?: Address;
 }
 
 // ------- Delivery Agent -------
