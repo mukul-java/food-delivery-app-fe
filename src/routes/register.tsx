@@ -11,8 +11,19 @@ import {
 } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
 import { FormField, FormWrapper, SubmitButton } from "@/components/forms";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { isEmail } from "@/utils/validator";
 import { ROUTES } from "@/constants/routes";
+import { APP_LABELS } from "@/constants/labels";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import type { UserRole } from "@/types/auth";
 
 export const Route = createFileRoute("/register")({
   component: RegisterPage,
@@ -43,6 +54,7 @@ function RegisterPage() {
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const [zipCode, setZipCode] = useState("");
+  const [userRole, setUserRole] = useState<UserRole>("CUSTOMER");
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
@@ -91,7 +103,7 @@ function RegisterPage() {
         username: username.trim(),
         password,
         phoneNumber: Number(phoneNumber),
-        userRole: "CUSTOMER",
+        userRole,
         address: {
           street: street.trim(),
           city: city.trim(),
@@ -109,18 +121,24 @@ function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-muted/40 px-4 py-10">
-      <Card className="w-full max-w-lg">
-        <CardHeader className="space-y-3 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <UtensilsCrossed className="h-6 w-6" aria-hidden />
+    <div className="relative flex min-h-dvh items-center justify-center bg-background px-4 py-10">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      <Card className="w-full max-w-lg shadow-xl border-border overflow-hidden">
+        <div className="h-1 bg-gradient-to-r from-zinc-700 via-zinc-800 to-zinc-900" />
+        <CardHeader className="space-y-3 text-center pb-2">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
+            <UtensilsCrossed className="h-7 w-7" aria-hidden />
           </div>
-          <CardTitle className="text-2xl">Create your account</CardTitle>
-          <CardDescription>
-            Get started with the admin dashboard
+          <CardTitle className="text-2xl font-bold text-foreground">
+            Create your account
+          </CardTitle>
+          <CardDescription className="text-muted-foreground text-xs sm:text-sm">
+            Join {APP_LABELS.APP_NAME} to order delicious food
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-4">
           <FormWrapper onSubmit={onSubmit} aria-label="Register form">
             <FormField
               id="fullName"
@@ -178,6 +196,20 @@ function RegisterPage() {
               }
               error={errors.phoneNumber}
             />
+            <div className="space-y-2">
+              <Label htmlFor="userRole">Account Type</Label>
+              <Select value={userRole} onValueChange={(val) => setUserRole(val as UserRole)}>
+                <SelectTrigger id="userRole">
+                  <SelectValue placeholder="Select account type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="CUSTOMER">Customer</SelectItem>
+                  <SelectItem value="RESTAURANT_OWNER">Restaurant Owner</SelectItem>
+                  <SelectItem value="DELIVERY_PARTNER">Delivery Partner</SelectItem>
+                  <SelectItem value="ADMIN">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <FormField
               id="street"
               label="Street"

@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ShoppingBag, CheckCircle2, Clock, DollarSign, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ordersService, type OrderResponse } from "@/services/ordersService";
+import { ordersService } from "@/services/ordersService";
+import type { OrderResponse } from "@/types/order";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -51,7 +52,7 @@ function DashboardPage() {
   const cards = [
     { label: "Total Orders", value: formatNumber(stats.total), icon: ShoppingBag, color: "text-blue-600" },
     { label: "Delivered", value: formatNumber(stats.delivered), icon: CheckCircle2, color: "text-emerald-600" },
-    { label: "In Progress", value: formatNumber(stats.pending), icon: Clock, color: "text-amber-600" },
+    { label: "In Progress", value: formatNumber(stats.pending), icon: Clock, color: "text-zinc-400" },
     { label: "Revenue", value: currency(stats.revenue), icon: DollarSign, color: "text-purple-600" },
   ];
 
@@ -93,10 +94,10 @@ function DashboardPage() {
               </TableHeader>
               <TableBody>
                 {recent.map((o) => (
-                  <TableRow key={o.orderNumber}>
-                    <TableCell className="font-medium">#{o.orderNumber}</TableCell>
-                    <TableCell>{o.userName}</TableCell>
-                    <TableCell>{o.restaurantName}</TableCell>
+                  <TableRow key={o.orderId}>
+                    <TableCell className="font-medium">{o.orderId}</TableCell>
+                    <TableCell>{o.userId}</TableCell>
+                    <TableCell>{o.restaurantId}</TableCell>
                     <TableCell>{currency(o.totalAmount)}</TableCell>
                     <TableCell>
                       <StatusBadge status={o.orderStatus} />

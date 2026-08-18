@@ -11,7 +11,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { ordersService, type OrderResponse, type OrderStatus } from "@/services/ordersService";
+import { ordersService } from "@/services/ordersService";
+import type { OrderResponse, OrderStatus } from "@/types/order";
 import { PageHeader } from "@/components/PageHeader";
 import { FilterPanel } from "@/components/common/FilterPanel";
 import { DataPagination } from "@/components/DataPagination";
@@ -33,7 +34,7 @@ function OrdersPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<OrderStatus | "ALL">("ALL");
   const [loading, setLoading] = useState(true);
-  const [confirmId, setConfirmId] = useState<number | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -63,9 +64,9 @@ function OrdersPage() {
   }, [search]);
 
   const handleCancel = async () => {
-    if (confirmId == null) return;
+    if (!confirmId) return;
     await ordersService.cancel(confirmId);
-    toast.success(`Order #${confirmId} cancelled`);
+    toast.success(`Order ${confirmId} cancelled`);
     setConfirmId(null);
     load();
   };
@@ -79,7 +80,7 @@ function OrdersPage() {
           <FilterPanel
             search={search}
             onSearchChange={setSearch}
-            searchPlaceholder="Search order #, user, restaurant..."
+            searchPlaceholder="Search order ID, user, restaurant..."
             statusValue={status}
             onStatusChange={(v) => setStatus(v as OrderStatus | "ALL")}
             statusOptions={ORDER_STATUS_OPTIONS}
@@ -92,15 +93,13 @@ function OrdersPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead scope="col">Order #</TableHead>
+                    <TableHead scope="col">Order ID</TableHead>
                     <TableHead scope="col">Restaurant</TableHead>
-                    <TableHead scope="col">User</TableHead>
+                    <TableHead scope="col">User ID</TableHead>
                     <TableHead scope="col">Items</TableHead>
                     <TableHead scope="col">Total</TableHead>
                     <TableHead scope="col">Status</TableHead>
                     <TableHead scope="col">Order Time</TableHead>
-                    <TableHead scope="col">Expected Delivery</TableHead>
-                    <TableHead scope="col">Payment ID</TableHead>
                     <TableHead scope="col" className="text-right">
                       Actions
                     </TableHead>
@@ -110,7 +109,7 @@ function OrdersPage() {
                   {orders.length === 0 && (
                     <TableRow>
                       <TableCell
-                        colSpan={10}
+                        colSpan={8}
                         className="py-8 text-center text-muted-foreground"
                       >
                         No orders found
@@ -118,25 +117,19 @@ function OrdersPage() {
                     </TableRow>
                   )}
                   {orders.map((o) => (
-                    <TableRow key={o.orderNumber}>
+                    <TableRow key={o.orderId}>
                       <TableCell className="font-medium">
-                        #{o.orderNumber}
+                        {o.orderId}
                       </TableCell>
-                      <TableCell>{o.restaurantName}</TableCell>
-                      <TableCell>{o.userName}</TableCell>
-                      <TableCell>{o.orderItems.length}</TableCell>
+                      <TableCell>{o.restaurantId}</TableCell>
+                      <TableCell>{o.userId}</TableCell>
+                      <TableCell>{o.items?.length ?? "—"}</TableCell>
                       <TableCell>{currency(o.totalAmount)}</TableCell>
                       <TableCell>
                         <StatusBadge status={o.orderStatus} />
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {formatDateTime(o.orderTime)}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {formatDateTime(o.expectedDeliveryTime)}
-                      </TableCell>
-                      <TableCell className="font-mono text-xs">
-                        {o.paymentId}
+                        {formatDateTime(o.createdAt)}
                       </TableCell>
                       <TableCell className="text-right">
                         <Button
@@ -146,7 +139,7 @@ function OrdersPage() {
                             o.orderStatus === "CANCELLED" ||
                             o.orderStatus === "DELIVERED"
                           }
-                          onClick={() => setConfirmId(o.orderNumber)}
+                          onClick={() => setConfirmId(o.orderId)}
                         >
                           Cancel
                         </Button>
@@ -173,7 +166,7 @@ function OrdersPage() {
         open={confirmId != null}
         onOpenChange={(o) => !o && setConfirmId(null)}
         title="Cancel this order?"
-        description={`Order #${confirmId} will be marked as cancelled. This cannot be undone.`}
+        description={`Order ${confirmId} will be marked as cancelled. This cannot be undone.`}
         confirmText="Yes, cancel order"
         onConfirm={handleCancel}
         destructive

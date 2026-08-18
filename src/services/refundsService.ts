@@ -1,38 +1,37 @@
 import api from "./api";
+import type { PagedResponse } from "@/types/order";
 import type { Paginated } from "./ordersService";
 
-export type RefundStatus = "REQUESTED" | "APPROVED" | "REJECTED" | "COMPLETED";
+export type RefundStatus = "PENDING" | "APPROVED" | "REJECTED" | "COMPLETED" | "REQUESTED";
 
 export interface Refund {
-  id: string;
-  paymentId: string;
+  refundId: string;
   orderId: string;
-  customer: string;
+  userId: number;
   amount: number;
   reason: string;
   status: RefundStatus;
-  createdAt: string;
+  requestedAt: string;
 }
 
-const STATUSES: RefundStatus[] = ["REQUESTED", "APPROVED", "REJECTED", "COMPLETED"];
-const REASONS = [
-  "Wrong item delivered",
-  "Order cancelled",
-  "Late delivery",
-  "Food quality issue",
-  "Duplicate charge",
-];
+export interface RefundActionResponse {
+  success: boolean;
+  message: string;
+  refundId: string;
+  orderId: string;
+  amount?: number;
+  status: RefundStatus;
+  processedAt: string;
+}
 
-const MOCK_REFUNDS: Refund[] = Array.from({ length: 32 }, (_, i) => ({
-  id: `REF-${(3000 + i).toString()}`,
-  paymentId: `PAY-${(2000 + i).toString()}`,
-  orderId: `ORD-${(1000 + i).toString()}`,
-  customer: ["Alice Chen", "Bob Smith", "Carla Diaz", "Dave Kim"][i % 4],
-  amount: Number(((i % 30) + 10.5).toFixed(2)),
-  reason: REASONS[i % REASONS.length],
-  status: STATUSES[i % STATUSES.length],
-  createdAt: new Date(Date.now() - i * 7200_000).toISOString(),
-}));
+function adaptPaged<T>(res: PagedResponse<T>, page: number, pageSize: number): Paginated<T> {
+  return {
+    data: res.content,
+    total: res.totalElements,
+    page,
+    pageSize,
+  };
+}
 
 export const refundsService = {
   async list(params: {
@@ -41,38 +40,27 @@ export const refundsService = {
     search?: string;
     status?: RefundStatus | "ALL";
   }): Promise<Paginated<Refund>> {
-    await new Promise((r) => setTimeout(r, 300));
-    const { page = 1, pageSize = 10, search = "", status = "ALL" } = params;
-    let filtered = MOCK_REFUNDS;
-    if (status !== "ALL") filtered = filtered.filter((r) => r.status === status);
-    if (search) {
-      const s = search.toLowerCase();
-      filtered = filtered.filter(
-        (r) =>
-          r.id.toLowerCase().includes(s) ||
-          r.orderId.toLowerCase().includes(s) ||
-          r.customer.toLowerCase().includes(s),
-      );
-    }
-    const start = (page - 1) * pageSize;
-    return {
-      data: filtered.slice(start, start + pageSize),
-      total: filtered.length,
-      page,
-      pageSize,
-    };
+    const page = params.page ?? 1;
+    const pageSize = params.pageSize ?? 10;
+    const response = await api.get<PagedResponse<Refund>>("/refunds", {
+      params: {
+        page,
+        pageSize,
+        search: params.search || undefined,
+        status: params.status !== "ALL" ? params.status : undefined,
+      },
+    });
+    return adaptPaged(response.data, page, pageSize);
   },
 
-  async approve(id: string): Promise<void> {
-    await new Promise((r) => setTimeout(r, 300));
-    const r = MOCK_REFUNDS.find((x) => x.id === id);
-    if (r) r.status = "APPROVED";
+  async approve(id: string): Promise<RefundActionResponse> {
+    const response = await api.post<RefundActionResponse>(`/refunds/${id}/approve`);
+    return response.data;
   },
 
-  async reject(id: string): Promise<void> {
-    await new Promise((r) => setTimeout(r, 300));
-    const r = MOCK_REFUNDS.find((x) => x.id === id);
-    if (r) r.status = "REJECTED";
+  async reject(id: string): Promise<RefundActionResponse> {
+    const response = await api.post<RefundActionResponse>(`/refunds/${id}/reject`);
+    return response.data;
   },
 
   _api: api,

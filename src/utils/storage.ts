@@ -10,7 +10,10 @@ export const storage = {
     },
 
     getToken(): string | null {
-        return localStorage.getItem(ACCESS_TOKEN_KEY);
+        const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+        if (token) return token;
+        const user = this.getUser();
+        return user?.token || null;
     },
 
     removeToken() {

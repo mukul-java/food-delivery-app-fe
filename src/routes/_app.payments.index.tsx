@@ -10,11 +10,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import {
-  paymentsService,
-  type PaymentResponseDto,
-  type PaymentStatus,
-} from "@/services/paymentsService";
+import { paymentsService } from "@/services/paymentsService";
+import type { PaymentResponse, PaymentStatus } from "@/types/payment";
 import { PageHeader } from "@/components/PageHeader";
 import { FilterPanel } from "@/components/common/FilterPanel";
 import { DataPagination } from "@/components/DataPagination";
@@ -31,7 +28,7 @@ export const Route = createFileRoute("/_app/payments/")({
 });
 
 function PaymentsPage() {
-  const [items, setItems] = useState<PaymentResponseDto[]>([]);
+  const [items, setItems] = useState<PaymentResponse[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -117,14 +114,12 @@ function PaymentsPage() {
                       <TableCell>{p.orderId}</TableCell>
                       <TableCell className="font-mono text-xs">{p.userId}</TableCell>
                       <TableCell>{p.amount.toFixed(2)}</TableCell>
-                      <TableCell>{p.currency}</TableCell>
                       <TableCell>{p.paymentMethod}</TableCell>
-                      <TableCell>{p.gateway}</TableCell>
                       <TableCell>
-                        <StatusBadge status={p.status} />
+                        <StatusBadge status={p.paymentStatus || p.status || "COMPLETED"} />
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {formatDateTime(p.createdAt)}
+                        {formatDateTime(p.transactionTimestamp)}
                       </TableCell>
                       <TableCell className="text-right">
                         <Button asChild variant="ghost" size="sm">

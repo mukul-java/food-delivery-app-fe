@@ -1,4 +1,4 @@
-import { Menu, LogOut, Bell } from "lucide-react";
+import { Menu, LogOut, Bell, ShoppingCart } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -12,11 +12,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { initials as toInitials } from "@/utils/string";
 import { ROUTES } from "@/constants/routes";
 
 export function Header({ onOpenSidebar }: { onOpenSidebar: () => void }) {
   const { user, logout } = useAuth();
+  const { itemCount, openCart } = useCart();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -28,7 +31,7 @@ export function Header({ onOpenSidebar }: { onOpenSidebar: () => void }) {
   const userInitials = toInitials(user?.username);
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b bg-background px-4 sm:px-6">
+    <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border/60 bg-background/80 backdrop-blur-md px-4 sm:px-6 shadow-xs">
       <Button
         variant="ghost"
         size="icon"
@@ -41,19 +44,36 @@ export function Header({ onOpenSidebar }: { onOpenSidebar: () => void }) {
 
       <div className="flex-1" />
 
-      <Button variant="ghost" size="icon" aria-label="Notifications">
-        <Bell className="h-5 w-5" aria-hidden />
+      <ThemeToggle />
+
+      <Button
+        variant="ghost"
+        size="icon"
+        className="relative hover:bg-accent transition-colors"
+        onClick={openCart}
+        aria-label="Shopping Cart"
+      >
+        <ShoppingCart className="h-5 w-5 text-foreground" aria-hidden />
+        {itemCount > 0 && (
+          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground shadow-xs">
+            {itemCount > 99 ? "99+" : itemCount}
+          </span>
+        )}
+      </Button>
+
+      <Button variant="ghost" size="icon" aria-label="Notifications" className="hover:bg-accent">
+        <Bell className="h-5 w-5 text-foreground" aria-hidden />
       </Button>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="flex items-center gap-2 px-2"
+            className="flex items-center gap-2 px-2 hover:bg-accent"
             aria-label="Account menu"
           >
-            <Avatar className="h-8 w-8">
-              <AvatarFallback>{userInitials}</AvatarFallback>
+            <Avatar className="h-8 w-8 ring-2 ring-border">
+              <AvatarFallback className="bg-muted text-foreground font-bold">{userInitials}</AvatarFallback>
             </Avatar>
             <div className="hidden min-w-0 text-left sm:block">
               <p className="truncate text-sm font-medium leading-none">

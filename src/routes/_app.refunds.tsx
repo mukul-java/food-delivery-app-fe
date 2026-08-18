@@ -11,7 +11,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { refundsService, type Refund, type RefundStatus } from "@/services/refundsService";
+import { refundsService } from "@/services/refundsService";
+import type { Refund, RefundStatus } from "@/services/refundsService";
 import { PageHeader } from "@/components/PageHeader";
 import { FilterPanel } from "@/components/common/FilterPanel";
 import { DataPagination } from "@/components/DataPagination";
@@ -101,9 +102,8 @@ function RefundsPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead scope="col">Refund ID</TableHead>
-                    <TableHead scope="col">Payment</TableHead>
                     <TableHead scope="col">Order</TableHead>
-                    <TableHead scope="col">Customer</TableHead>
+                    <TableHead scope="col">User ID</TableHead>
                     <TableHead scope="col">Amount</TableHead>
                     <TableHead scope="col">Reason</TableHead>
                     <TableHead scope="col">Status</TableHead>
@@ -116,7 +116,7 @@ function RefundsPage() {
                   {items.length === 0 && (
                     <TableRow>
                       <TableCell
-                        colSpan={8}
+                        colSpan={7}
                         className="py-8 text-center text-muted-foreground"
                       >
                         No refunds found
@@ -124,11 +124,10 @@ function RefundsPage() {
                     </TableRow>
                   )}
                   {items.map((r) => (
-                    <TableRow key={r.id}>
-                      <TableCell className="font-medium">{r.id}</TableCell>
-                      <TableCell>{r.paymentId}</TableCell>
+                    <TableRow key={r.refundId}>
+                      <TableCell className="font-medium">{r.refundId}</TableCell>
                       <TableCell>{r.orderId}</TableCell>
-                      <TableCell>{r.customer}</TableCell>
+                      <TableCell>{r.userId}</TableCell>
                       <TableCell>{currency(r.amount)}</TableCell>
                       <TableCell className="max-w-[200px] truncate">
                         {r.reason}
@@ -141,9 +140,9 @@ function RefundsPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            disabled={r.status !== "REQUESTED"}
+                            disabled={r.status !== "PENDING"}
                             onClick={() =>
-                              setAction({ type: "approve", id: r.id })
+                              setAction({ type: "approve", id: r.refundId })
                             }
                           >
                             Approve
@@ -151,10 +150,10 @@ function RefundsPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            disabled={r.status !== "REQUESTED"}
+                            disabled={r.status !== "PENDING"}
                             className="text-destructive hover:text-destructive"
                             onClick={() =>
-                              setAction({ type: "reject", id: r.id })
+                              setAction({ type: "reject", id: r.refundId })
                             }
                           >
                             Reject

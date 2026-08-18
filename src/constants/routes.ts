@@ -8,6 +8,11 @@ export const ROUTES = {
   PAYMENT_DETAILS: "/payments/$id",
   REFUNDS: "/refunds",
   PROFILE: "/profile",
+  RESTAURANTS: "/restaurants",
+  RESTAURANTS_DETAILS: "/restaurants/$id",
+  CHECKOUT: "/checkout",
+  MY_RESTAURANTS: "/my-restaurants",
+  MY_RESTAURANTS_DETAILS: "/my-restaurants/$id",
 } as const;
 
 export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];

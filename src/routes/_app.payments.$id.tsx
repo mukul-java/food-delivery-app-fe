@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { paymentsService, type PaymentResponseDto } from "@/services/paymentsService";
+import { paymentsService } from "@/services/paymentsService";
+import type { PaymentResponse } from "@/types/payment";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -15,7 +16,7 @@ export const Route = createFileRoute("/_app/payments/$id")({
 function PaymentDetailsPage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
-  const [payment, setPayment] = useState<PaymentResponseDto | null>(null);
+  const [payment, setPayment] = useState<PaymentResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -43,12 +44,10 @@ function PaymentDetailsPage() {
     ["Payment ID", payment.paymentId],
     ["Order ID", <Link to="/orders" className="text-primary hover:underline">{payment.orderId}</Link>],
     ["User ID", payment.userId],
-    ["Amount", `${payment.amount.toFixed(2)} ${payment.currency}`],
-    ["Payment Method", payment.paymentMethod],
-    ["Gateway", payment.gateway],
-    ["Status", <StatusBadge status={payment.status} />],
-    ["Created At", new Date(payment.createdAt).toLocaleString()],
-    ["Updated At", new Date(payment.updatedAt).toLocaleString()],
+    ["Amount", `${payment.amount.toFixed(2)}`],
+    ["Payment Method", payment.paymentMethod || "CREDIT_CARD"],
+    ["Status", <StatusBadge status={payment.paymentStatus || payment.status || "COMPLETED"} />],
+    ["Transaction Time", payment.transactionTimestamp || payment.createdAt ? new Date(payment.transactionTimestamp || payment.createdAt!).toLocaleString() : "N/A"],
   ];
 
   return (

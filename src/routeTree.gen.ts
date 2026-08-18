@@ -13,12 +13,17 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as AppCheckoutRouteImport } from './routes/_app.checkout'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppOrdersRouteImport } from './routes/_app.orders'
 import { Route as AppProfileRouteImport } from './routes/_app.profile'
 import { Route as AppRefundsRouteImport } from './routes/_app.refunds'
+import { Route as AppMyRestaurantsIndexRouteImport } from './routes/_app.my-restaurants.index'
+import { Route as AppMyRestaurantsIdRouteImport } from './routes/_app.my-restaurants.$id'
 import { Route as AppPaymentsIndexRouteImport } from './routes/_app.payments.index'
 import { Route as AppPaymentsIdRouteImport } from './routes/_app.payments.$id'
+import { Route as AppRestaurantsIndexRouteImport } from './routes/_app.restaurants.index'
+import { Route as AppRestaurantsIdRouteImport } from './routes/_app.restaurants.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -38,6 +43,11 @@ const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppCheckoutRoute = AppCheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
@@ -59,6 +69,16 @@ const AppRefundsRoute = AppRefundsRouteImport.update({
   path: '/refunds',
   getParentRoute: () => AppRoute,
 } as any)
+const AppMyRestaurantsIndexRoute = AppMyRestaurantsIndexRouteImport.update({
+  id: '/my-restaurants/',
+  path: '/my-restaurants/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMyRestaurantsIdRoute = AppMyRestaurantsIdRouteImport.update({
+  id: '/my-restaurants/$id',
+  path: '/my-restaurants/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPaymentsIndexRoute = AppPaymentsIndexRouteImport.update({
   id: '/payments/',
   path: '/payments/',
@@ -69,28 +89,48 @@ const AppPaymentsIdRoute = AppPaymentsIdRouteImport.update({
   path: '/payments/$id',
   getParentRoute: () => AppRoute,
 } as any)
+const AppRestaurantsIndexRoute = AppRestaurantsIndexRouteImport.update({
+  id: '/restaurants/',
+  path: '/restaurants/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRestaurantsIdRoute = AppRestaurantsIdRouteImport.update({
+  id: '/restaurants/$id',
+  path: '/restaurants/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/checkout': typeof AppCheckoutRoute
   '/dashboard': typeof AppDashboardRoute
   '/orders': typeof AppOrdersRoute
   '/profile': typeof AppProfileRoute
   '/refunds': typeof AppRefundsRoute
+  '/my-restaurants/$id': typeof AppMyRestaurantsIdRoute
   '/payments/$id': typeof AppPaymentsIdRoute
+  '/restaurants/$id': typeof AppRestaurantsIdRoute
+  '/my-restaurants/': typeof AppMyRestaurantsIndexRoute
   '/payments/': typeof AppPaymentsIndexRoute
+  '/restaurants/': typeof AppRestaurantsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/checkout': typeof AppCheckoutRoute
   '/dashboard': typeof AppDashboardRoute
   '/orders': typeof AppOrdersRoute
   '/profile': typeof AppProfileRoute
   '/refunds': typeof AppRefundsRoute
+  '/my-restaurants/$id': typeof AppMyRestaurantsIdRoute
   '/payments/$id': typeof AppPaymentsIdRoute
+  '/restaurants/$id': typeof AppRestaurantsIdRoute
+  '/my-restaurants': typeof AppMyRestaurantsIndexRoute
   '/payments': typeof AppPaymentsIndexRoute
+  '/restaurants': typeof AppRestaurantsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,12 +138,17 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/_app/checkout': typeof AppCheckoutRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/orders': typeof AppOrdersRoute
   '/_app/profile': typeof AppProfileRoute
   '/_app/refunds': typeof AppRefundsRoute
+  '/_app/my-restaurants/$id': typeof AppMyRestaurantsIdRoute
   '/_app/payments/$id': typeof AppPaymentsIdRoute
+  '/_app/restaurants/$id': typeof AppRestaurantsIdRoute
+  '/_app/my-restaurants/': typeof AppMyRestaurantsIndexRoute
   '/_app/payments/': typeof AppPaymentsIndexRoute
+  '/_app/restaurants/': typeof AppRestaurantsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,35 +156,50 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/register'
+    | '/checkout'
     | '/dashboard'
     | '/orders'
     | '/profile'
     | '/refunds'
+    | '/my-restaurants/$id'
     | '/payments/$id'
+    | '/restaurants/$id'
+    | '/my-restaurants/'
     | '/payments/'
+    | '/restaurants/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/register'
+    | '/checkout'
     | '/dashboard'
     | '/orders'
     | '/profile'
     | '/refunds'
+    | '/my-restaurants/$id'
     | '/payments/$id'
+    | '/restaurants/$id'
+    | '/my-restaurants'
     | '/payments'
+    | '/restaurants'
   id:
     | '__root__'
     | '/'
     | '/_app'
     | '/login'
     | '/register'
+    | '/_app/checkout'
     | '/_app/dashboard'
     | '/_app/orders'
     | '/_app/profile'
     | '/_app/refunds'
+    | '/_app/my-restaurants/$id'
     | '/_app/payments/$id'
+    | '/_app/restaurants/$id'
+    | '/_app/my-restaurants/'
     | '/_app/payments/'
+    | '/_app/restaurants/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -179,6 +239,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/checkout': {
+      id: '/_app/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof AppCheckoutRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/dashboard': {
       id: '/_app/dashboard'
       path: '/dashboard'
@@ -207,6 +274,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRefundsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/my-restaurants/': {
+      id: '/_app/my-restaurants/'
+      path: '/my-restaurants'
+      fullPath: '/my-restaurants/'
+      preLoaderRoute: typeof AppMyRestaurantsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/my-restaurants/$id': {
+      id: '/_app/my-restaurants/$id'
+      path: '/my-restaurants/$id'
+      fullPath: '/my-restaurants/$id'
+      preLoaderRoute: typeof AppMyRestaurantsIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/payments/': {
       id: '/_app/payments/'
       path: '/payments'
@@ -221,25 +302,49 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPaymentsIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/restaurants/': {
+      id: '/_app/restaurants/'
+      path: '/restaurants'
+      fullPath: '/restaurants/'
+      preLoaderRoute: typeof AppRestaurantsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/restaurants/$id': {
+      id: '/_app/restaurants/$id'
+      path: '/restaurants/$id'
+      fullPath: '/restaurants/$id'
+      preLoaderRoute: typeof AppRestaurantsIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppCheckoutRoute: typeof AppCheckoutRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppOrdersRoute: typeof AppOrdersRoute
   AppProfileRoute: typeof AppProfileRoute
   AppRefundsRoute: typeof AppRefundsRoute
+  AppMyRestaurantsIdRoute: typeof AppMyRestaurantsIdRoute
   AppPaymentsIdRoute: typeof AppPaymentsIdRoute
+  AppRestaurantsIdRoute: typeof AppRestaurantsIdRoute
+  AppMyRestaurantsIndexRoute: typeof AppMyRestaurantsIndexRoute
   AppPaymentsIndexRoute: typeof AppPaymentsIndexRoute
+  AppRestaurantsIndexRoute: typeof AppRestaurantsIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppCheckoutRoute: AppCheckoutRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppOrdersRoute: AppOrdersRoute,
   AppProfileRoute: AppProfileRoute,
   AppRefundsRoute: AppRefundsRoute,
+  AppMyRestaurantsIdRoute: AppMyRestaurantsIdRoute,
   AppPaymentsIdRoute: AppPaymentsIdRoute,
+  AppRestaurantsIdRoute: AppRestaurantsIdRoute,
+  AppMyRestaurantsIndexRoute: AppMyRestaurantsIndexRoute,
   AppPaymentsIndexRoute: AppPaymentsIndexRoute,
+  AppRestaurantsIndexRoute: AppRestaurantsIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
@@ -253,3 +358,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

@@ -14,13 +14,24 @@ export function StatCard({
   iconClassName?: string;
 }) {
   return (
-    <Card>
+    <Card className="card-hover border-border/80 shadow-xs overflow-hidden">
       <CardContent className="flex items-center justify-between p-6">
-        <div className="min-w-0">
-          <p className="truncate text-sm text-muted-foreground">{label}</p>
-          <p className="mt-1 text-2xl font-semibold">{value}</p>
+        <div className="min-w-0 space-y-1">
+          <p className="truncate text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {label}
+          </p>
+          <p className="text-2xl font-bold text-foreground">{value}</p>
         </div>
-        <Icon className={cn("h-8 w-8 shrink-0", iconClassName)} aria-hidden />
+        <div
+          className={cn(
+            "flex h-12 w-12 items-center justify-center rounded-2xl p-2.5 shadow-xs",
+            iconClassName?.includes("bg-")
+              ? ""
+              : "bg-amber-500/10 text-amber-600"
+          )}
+        >
+          <Icon className={cn("h-6 w-6 shrink-0", iconClassName)} aria-hidden />
+        </div>
       </CardContent>
     </Card>
   );
