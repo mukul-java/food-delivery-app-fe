@@ -15,7 +15,7 @@ export default defineConfig({
   ],
   server: {
     host: "localhost",
-    port: 8888,
+    port: 3000,
     strictPort: true,
   },
 });

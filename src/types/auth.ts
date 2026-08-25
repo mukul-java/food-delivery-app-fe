@@ -29,6 +29,7 @@ export interface LoginData {
   email?: string;
   userRole?: UserRole;
   id?: number;
+  userId?: number;
   fullName?: string;
   phoneNumber?: number;
   address?: Address;

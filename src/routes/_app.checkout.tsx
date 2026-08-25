@@ -17,6 +17,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { ordersService } from "@/services/ordersService";
 import { paymentsService } from "@/services/paymentsService";
+import { extractErrorMessage } from "@/api/axios";
 import type { OrderResponse } from "@/types/order";
 import type { PaymentResponse, PaymentMethod, PaymentGateway } from "@/types/payment";
 import { currency } from "@/utils/currency";
@@ -39,7 +40,7 @@ type Step = "ADDRESS_REVIEW" | "PAYMENT" | "SUCCESS";
 function CheckoutPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { cart, refreshCart } = useCart();
+  const { cart, refreshCart, loading: cartLoading } = useCart();
 
   const [step, setStep] = useState<Step>("ADDRESS_REVIEW");
 
@@ -73,13 +74,15 @@ function CheckoutPage() {
     securityCode: "123",
   });
 
-  const userId = user?.username || (user?.id ? String(user.id) : "guest");
+  const numericUserId = user?.id
+    ? Number(user.id)
+    : user?.userId
+    ? Number(user.userId)
+    : 0;
 
   useEffect(() => {
-    if (step === "ADDRESS_REVIEW" && (!cart || cart.items.length === 0)) {
-      toast.info("Your cart is empty");
-    }
-  }, [cart, step]);
+    refreshCart();
+  }, [refreshCart]);
 
   // Step 1: Initiate Order Checkout
   const handleInitiateOrder = async (e: React.FormEvent) => {
@@ -88,18 +91,22 @@ function CheckoutPage() {
       toast.error("Cart is empty");
       return;
     }
+    if (!numericUserId) {
+      toast.error("Please log in to place an order");
+      return;
+    }
 
     setOrderLoading(true);
     try {
       const order = await ordersService.checkout({
-        userId,
+        userId: numericUserId,
         address,
       });
       setCreatedOrder(order);
       setStep("PAYMENT");
       toast.success("Order created! Please complete payment.");
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to create order");
+      toast.error(extractErrorMessage(err) || "Failed to create order");
     } finally {
       setOrderLoading(false);
     }
@@ -117,7 +124,7 @@ function CheckoutPage() {
     try {
       const paymentData = {
         orderId: createdOrder.orderId || String((createdOrder as any).id || (createdOrder as any).orderNumber),
-        userId,
+        userId: numericUserId,
         amount: createdOrder.totalAmount || cart?.totalAmount || 0,
         currency: "USD" as const,
         paymentMethod,
@@ -131,7 +138,7 @@ function CheckoutPage() {
       await refreshCart(); // Cart was cleared on order checkout
       toast.success("Payment completed successfully!");
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Payment failed. Please try again.");
+      toast.error(extractErrorMessage(err) || "Payment failed. Please try again.");
     } finally {
       setPaymentLoading(false);
     }
@@ -145,38 +152,38 @@ function CheckoutPage() {
       />
 
       {/* Checkout Progress Stepper */}
-      <div className="flex items-center justify-between border-b pb-4 text-xs font-medium text-muted-foreground">
+      <div className="flex items-center justify-between border-b pb-4 text-xs font-medium text-muted-foreground overflow-x-auto gap-2 min-w-0">
         <div
-          className={`flex items-center gap-2 ${
+          className={`flex items-center gap-2 shrink-0 ${
             step === "ADDRESS_REVIEW" ? "text-primary font-bold" : "text-green-600"
           }`}
         >
-          <span className="flex h-6 w-6 items-center justify-center rounded-full border text-xs">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs">
             {step !== "ADDRESS_REVIEW" ? <CheckCircle2 className="h-4 w-4" /> : "1"}
           </span>
-          <span>1. Delivery & Order</span>
+          <span className="whitespace-nowrap">1. Delivery & Order</span>
         </div>
-        <div className="h-0.5 w-12 bg-muted" />
+        <div className="h-0.5 w-6 sm:w-12 bg-muted shrink-0" />
         <div
-          className={`flex items-center gap-2 ${
+          className={`flex items-center gap-2 shrink-0 ${
             step === "PAYMENT" ? "text-primary font-bold" : step === "SUCCESS" ? "text-green-600" : ""
           }`}
         >
-          <span className="flex h-6 w-6 items-center justify-center rounded-full border text-xs">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs">
             {step === "SUCCESS" ? <CheckCircle2 className="h-4 w-4" /> : "2"}
           </span>
-          <span>2. Secure Payment</span>
+          <span className="whitespace-nowrap">2. Secure Payment</span>
         </div>
-        <div className="h-0.5 w-12 bg-muted" />
+        <div className="h-0.5 w-6 sm:w-12 bg-muted shrink-0" />
         <div
-          className={`flex items-center gap-2 ${
+          className={`flex items-center gap-2 shrink-0 ${
             step === "SUCCESS" ? "text-primary font-bold" : ""
           }`}
         >
-          <span className="flex h-6 w-6 items-center justify-center rounded-full border text-xs">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs">
             3
           </span>
-          <span>3. Order Confirmed</span>
+          <span className="whitespace-nowrap">3. Order Confirmed</span>
         </div>
       </div>
 

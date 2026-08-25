@@ -55,13 +55,15 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
       {userRole && (
         <div className="px-4 py-2.5 border-t border-sidebar-border bg-muted/20">
-          <div className="flex items-center justify-between text-xs text-sidebar-foreground/80">
-            <span className="truncate font-medium max-w-[110px]" title={user?.username}>
-              {user?.username}
-            </span>
-            <span className="rounded bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary uppercase tracking-wider">
-              {userRole.replace("ROLE_", "").replace("_", " ")}
-            </span>
+          <div className="flex flex-col gap-1 text-xs text-sidebar-foreground/80 min-w-0">
+            <div className="flex items-center justify-between gap-1 min-w-0">
+              <span className="truncate font-medium min-w-0" title={user?.username}>
+                {user?.username}
+              </span>
+              <span className="shrink-0 rounded bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary uppercase tracking-wider">
+                {userRole.replace("ROLE_", "").replace("_", " ")}
+              </span>
+            </div>
           </div>
         </div>
       )}

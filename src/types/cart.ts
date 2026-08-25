@@ -10,7 +10,7 @@ export interface CartItem {
 
 export interface CartDto {
   cartId: string;
-  userId: string;
+  userId: number | string;
   restaurantId: string;
   items: CartItem[];
   totalAmount: number;
@@ -18,7 +18,7 @@ export interface CartDto {
 }
 
 export interface AddToCartRequestDto {
-  userId: string;
+  userId: number;
   restaurantId: string;
   foodItemId: string;
   name: string;
@@ -28,6 +28,6 @@ export interface AddToCartRequestDto {
 }
 
 export interface CheckoutRequestDto {
-  userId: string;
+  userId: number;
   address: Address;
 }

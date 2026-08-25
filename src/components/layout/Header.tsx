@@ -35,9 +35,8 @@ export function Header({ onOpenSidebar }: { onOpenSidebar: () => void }) {
       <Button
         variant="ghost"
         size="icon"
-        className="md:hidden"
         onClick={onOpenSidebar}
-        aria-label="Open navigation menu"
+        aria-label="Toggle navigation menu"
       >
         <Menu className="h-5 w-5" aria-hidden />
       </Button>
@@ -69,17 +68,17 @@ export function Header({ onOpenSidebar }: { onOpenSidebar: () => void }) {
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="flex items-center gap-2 px-2 hover:bg-accent"
+            className="flex items-center gap-2 px-2 hover:bg-accent max-w-[160px] sm:max-w-[220px] min-w-0"
             aria-label="Account menu"
           >
-            <Avatar className="h-8 w-8 ring-2 ring-border">
+            <Avatar className="h-8 w-8 ring-2 ring-border shrink-0">
               <AvatarFallback className="bg-muted text-foreground font-bold">{userInitials}</AvatarFallback>
             </Avatar>
             <div className="hidden min-w-0 text-left sm:block">
-              <p className="truncate text-sm font-medium leading-none">
+              <p className="truncate text-sm font-medium leading-none" title={user?.username}>
                 {user?.username}
               </p>
-              <p className="truncate text-xs text-muted-foreground">
+              <p className="truncate text-xs text-muted-foreground mt-1">
                 {(user?.role || user?.userRole || "").replace("ROLE_", "").replace("_", " ")}
               </p>
             </div>

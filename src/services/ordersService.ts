@@ -42,10 +42,11 @@ export const ordersService = {
     const page = params.page ?? 1;
     const pageSize = params.pageSize ?? 10;
     const backendPage = Math.max(0, page - 1);
+    const numericUserId = params.userId !== undefined && params.userId !== null && params.userId !== "" ? Number(params.userId) : undefined;
 
     const response = await api.get<PagedResponse<OrderResponse>>("/order", {
       params: {
-        userId: params.userId || undefined,
+        userId: numericUserId,
         status: params.status && params.status !== "ALL" ? params.status : undefined,
         page: backendPage,
         pageSize,
@@ -70,8 +71,9 @@ export const ordersService = {
     const page = params?.page ?? 1;
     const pageSize = params?.pageSize ?? 10;
     const backendPage = Math.max(0, page - 1);
+    const numericUserId = Number(userId);
 
-    const response = await api.get<PagedResponse<OrderResponse>>(`/order/user/${userId}`, {
+    const response = await api.get<PagedResponse<OrderResponse>>(`/order/user/${numericUserId}`, {
       params: {
         status: params?.status && params?.status !== "ALL" ? params.status : undefined,
         page: backendPage,
@@ -87,14 +89,22 @@ export const ordersService = {
   },
 
   async create(orderData: OrderRequest): Promise<OrderResponse> {
-    const response = await api.post<OrderResponse>("/order", orderData);
+    const payload = {
+      ...orderData,
+      userId: Number(orderData.userId),
+    };
+    const response = await api.post<OrderResponse>("/order", payload);
     return response.data;
   },
 
   async checkout(checkoutData: { userId: string | number; address: any }): Promise<OrderResponse> {
+    const payload = {
+      userId: Number(checkoutData.userId),
+      address: checkoutData.address,
+    };
     const response = await api.post<OrderResponse | { success: boolean; data: OrderResponse }>(
       "/order/checkout",
-      checkoutData
+      payload
     );
     const data =
       "data" in response.data && (response.data as { data: OrderResponse }).data

@@ -9,6 +9,7 @@ import {
 import { toast } from "sonner";
 import { useAuth } from "./AuthContext";
 import { cartService } from "@/services/cartService";
+import { extractErrorMessage } from "@/api/axios";
 import type { CartDto, AddToCartRequestDto, CartItem } from "@/types/cart";
 import {
   AlertDialog,
@@ -54,41 +55,48 @@ export function CartProvider({ children }: { children: ReactNode }) {
     pendingDto: AddToCartRequestDto | null;
   }>({ isOpen: false, pendingDto: null });
 
-  const userId = user?.username || (user?.id ? String(user.id) : "guest");
+  const numericUserId = user?.id
+    ? Number(user.id)
+    : user?.userId
+    ? Number(user.userId)
+    : null;
 
   const refreshCart = useCallback(async () => {
-    if (!isAuthenticated || !userId) {
+    if (!isAuthenticated || !numericUserId || isNaN(numericUserId)) {
       setCart(null);
       return;
     }
     setLoading(true);
     try {
-      const res = await cartService.getCart(userId);
+      const res = await cartService.getCart(numericUserId);
       setCart(res);
     } catch (err) {
       console.error("Failed to fetch cart:", err);
     } finally {
       setLoading(false);
     }
-  }, [isAuthenticated, userId]);
+  }, [isAuthenticated, numericUserId]);
 
   useEffect(() => {
     refreshCart();
   }, [refreshCart]);
 
-  const openCart = () => setIsCartOpen(true);
+  const openCart = () => {
+    refreshCart();
+    setIsCartOpen(true);
+  };
   const closeCart = () => setIsCartOpen(false);
   const toggleCart = () => setIsCartOpen((prev) => !prev);
 
   const executeAddToCart = async (dto: AddToCartRequestDto, showToast = true) => {
     try {
-      const updated = await cartService.addToCart(dto);
-      setCart(updated);
+      await cartService.addToCart(dto);
+      await refreshCart();
       if (showToast) {
         toast.success(`Added ${dto.name} to cart`);
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to update cart");
+      toast.error(extractErrorMessage(err) || "Failed to update cart");
     }
   };
 
@@ -98,13 +106,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     quantity = 1,
     specialInstructions = ""
   ) => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !numericUserId || isNaN(numericUserId)) {
       toast.error("Please login to add items to cart");
       return;
     }
 
     const dto: AddToCartRequestDto = {
-      userId,
+      userId: numericUserId,
       restaurantId,
       foodItemId: foodItem.id,
       name: foodItem.name,
@@ -123,10 +131,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const handleConfirmClearAndAdd = async () => {
-    if (!conflictModal.pendingDto) return;
+    if (!conflictModal.pendingDto || !numericUserId || isNaN(numericUserId)) return;
     try {
-      await cartService.clearCart(userId);
-      await executeAddToCart(conflictModal.pendingDto, true);
+      await cartService.clearCart(numericUserId);
+      await cartService.addToCart(conflictModal.pendingDto);
+      await refreshCart();
     } catch (err) {
       toast.error("Failed to replace cart");
     } finally {
@@ -135,10 +144,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const removeItem = async (foodItemId: string) => {
-    if (!userId) return;
+    if (!numericUserId || isNaN(numericUserId)) return;
     try {
-      const updated = await cartService.removeItem(userId, foodItemId);
-      setCart(updated);
+      await cartService.removeItem(numericUserId, foodItemId);
+      await refreshCart();
       toast.success("Item removed from cart");
     } catch {
       toast.error("Failed to remove item");
@@ -146,7 +155,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const updateItemQuantity = async (foodItemId: string, newQuantity: number) => {
-    if (!userId || !cart) return;
+    if (!numericUserId || isNaN(numericUserId) || !cart) return;
 
     if (newQuantity <= 0) {
       await removeItem(foodItemId);
@@ -161,7 +170,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (deltaQuantity === 0) return;
 
     const dto: AddToCartRequestDto = {
-      userId,
+      userId: numericUserId,
       restaurantId: cart.restaurantId,
       foodItemId,
       name: existingItem.name,
@@ -174,10 +183,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const clearCart = async () => {
-    if (!userId) return;
+    if (!numericUserId || isNaN(numericUserId)) return;
     try {
-      await cartService.clearCart(userId);
-      setCart(null);
+      await cartService.clearCart(numericUserId);
+      await refreshCart();
       toast.info("Cart cleared");
     } catch {
       toast.error("Failed to clear cart");

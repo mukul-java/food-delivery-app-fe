@@ -17,6 +17,11 @@ class AuthService {
 
     const data = response.data;
     const roleValue = (data.role || data.userRole || "CUSTOMER") as LoginData["role"];
+    const rawUserId = (data as any).userId ?? data.id;
+    const numericUserId =
+      rawUserId !== undefined && rawUserId !== null && !isNaN(Number(rawUserId))
+        ? Number(rawUserId)
+        : undefined;
 
     const loginData: LoginData = {
       token: data.token,
@@ -24,7 +29,8 @@ class AuthService {
       email: data.email,
       role: roleValue,
       userRole: roleValue,
-      id: data.id,
+      id: numericUserId,
+      userId: numericUserId,
       fullName: data.fullName,
       phoneNumber: data.phoneNumber,
       address: data.address,

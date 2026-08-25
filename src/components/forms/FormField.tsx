@@ -28,7 +28,7 @@ export function FormField({
       .join(" ") || undefined;
 
   return (
-    <div className={cn("space-y-2", containerClassName)}>
+    <div className={cn("space-y-2 w-full min-w-0", containerClassName)}>
       <Label htmlFor={id}>
         {label}
         {required && (
@@ -42,7 +42,7 @@ export function FormField({
         required={required}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
-        className={cn(error && "border-destructive", className)}
+        className={cn("w-full min-w-0", error && "border-destructive", className)}
         {...rest}
       />
       {hint && !error && (

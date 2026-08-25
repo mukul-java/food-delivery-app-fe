@@ -103,41 +103,41 @@ function LoginPage() {
                 type="button"
                 variant="outline"
                 size="sm"
-                className="h-8 text-[11px] justify-start px-2 gap-1.5"
+                className="h-8 text-[11px] justify-start px-2 gap-1.5 min-w-0"
                 onClick={() => setDemoCredentials("john@example.com", "SecretPassword123")}
               >
-                <User className="h-3.5 w-3.5 text-blue-500" />
-                Customer
+                <User className="h-3.5 w-3.5 shrink-0 text-blue-500" />
+                <span className="truncate">Customer</span>
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                className="h-8 text-[11px] justify-start px-2 gap-1.5"
+                className="h-8 text-[11px] justify-start px-2 gap-1.5 min-w-0"
                 onClick={() => setDemoCredentials("owner@example.com", "OwnerPass123")}
               >
-                <Store className="h-3.5 w-3.5 text-amber-500" />
-                Owner
+                <Store className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+                <span className="truncate">Owner</span>
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                className="h-8 text-[11px] justify-start px-2 gap-1.5"
+                className="h-8 text-[11px] justify-start px-2 gap-1.5 min-w-0"
                 onClick={() => setDemoCredentials("driver@example.com", "DriverPass123")}
               >
-                <Truck className="h-3.5 w-3.5 text-purple-500" />
-                Delivery Agent
+                <Truck className="h-3.5 w-3.5 shrink-0 text-purple-500" />
+                <span className="truncate">Delivery Agent</span>
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                className="h-8 text-[11px] justify-start px-2 gap-1.5"
+                className="h-8 text-[11px] justify-start px-2 gap-1.5 min-w-0"
                 onClick={() => setDemoCredentials("admin@example.com", "AdminPass123")}
               >
-                <Shield className="h-3.5 w-3.5 text-rose-500" />
-                Admin
+                <Shield className="h-3.5 w-3.5 shrink-0 text-rose-500" />
+                <span className="truncate">Admin</span>
               </Button>
             </div>
           </div>

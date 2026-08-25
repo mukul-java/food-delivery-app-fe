@@ -19,6 +19,12 @@ function AppLayout() {
   const { isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
+
+  const handleToggleSidebar = () => {
+    setMobileOpen((prev) => !prev);
+    setDesktopSidebarOpen((prev) => !prev);
+  };
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -37,9 +43,11 @@ function AppLayout() {
   return (
     <CartProvider>
       <div className="flex min-h-dvh w-full bg-muted/30">
-        <div className="hidden md:block">
-          <Sidebar />
-        </div>
+        {desktopSidebarOpen && (
+          <div className="hidden md:block shrink-0">
+            <Sidebar />
+          </div>
+        )}
 
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetContent side="left" className="w-64 p-0">
@@ -48,7 +56,7 @@ function AppLayout() {
         </Sheet>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <Header onOpenSidebar={() => setMobileOpen(true)} />
+          <Header onOpenSidebar={handleToggleSidebar} />
           <main
             id="main-content"
             className="flex-1 px-4 py-6 sm:px-6 lg:px-8"

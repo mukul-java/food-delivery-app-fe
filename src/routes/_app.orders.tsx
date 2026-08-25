@@ -47,15 +47,13 @@ function OrdersPage() {
   const load = async () => {
     setLoading(true);
     try {
-      // Determine target user ID filter:
-      // If logged in user is a CUSTOMER, restrict automatically to their user ID.
-      // If ADMIN / STAFF / OWNER, allow filtering by explicit filterUserId if provided.
-      const targetUserId = isCustomer ? user?.id : (filterUserId ? filterUserId : undefined);
+      const numericUserId = user?.id ? Number(user.id) : (user?.userId ? Number(user.userId) : undefined);
+      const targetUserId = isCustomer ? numericUserId : (filterUserId ? filterUserId : undefined);
 
       let res;
-      if (isCustomer && user?.id) {
+      if (isCustomer && numericUserId) {
         // Call GET /api/v1/order/user/{userId}?status={status}&page=0&pageSize=10
-        res = await ordersService.getUserOrders(user.id, {
+        res = await ordersService.getUserOrders(numericUserId, {
           page,
           pageSize: DEFAULT_PAGE_SIZE,
           status,

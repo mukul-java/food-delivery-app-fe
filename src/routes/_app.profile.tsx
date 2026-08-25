@@ -94,47 +94,47 @@ function ProfilePage() {
         description="View and update your personal information and delivery preferences."
       />
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
         {/* Left Column: Avatar & Role Card */}
-        <Card className="shadow-xs border-border/80 h-fit">
-          <CardContent className="flex flex-col items-center p-6 text-center">
+        <Card className="shadow-xs border-border/80 h-fit min-w-0 overflow-hidden">
+          <CardContent className="flex flex-col items-center p-6 text-center min-w-0">
             <Avatar className="h-24 w-24 ring-4 ring-primary/20 shadow-md">
               <AvatarFallback className="bg-primary/10 text-primary text-2xl font-bold">
                 {userInitials}
               </AvatarFallback>
             </Avatar>
-            <h3 className="mt-4 text-xl font-bold text-foreground">
+            <h3 className="mt-4 text-lg sm:text-xl font-bold text-foreground w-full truncate px-2" title={user?.fullName || user?.username}>
               {user?.fullName || user?.username}
             </h3>
-            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-              <Mail className="h-3.5 w-3.5" />
-              {user?.email || user?.username}
+            <p className="text-xs text-muted-foreground flex items-center justify-center gap-1 mt-1 w-full min-w-0 px-2">
+              <Mail className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate min-w-0">{user?.email || user?.username}</span>
             </p>
 
-            <div className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary">
-              <ShieldCheck className="h-4 w-4" />
-              <span>{userRole.replace("ROLE_", "").replace("_", " ")}</span>
+            <div className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary max-w-full min-w-0">
+              <ShieldCheck className="h-4 w-4 shrink-0" />
+              <span className="truncate min-w-0">{userRole.replace("ROLE_", "").replace("_", " ")}</span>
             </div>
 
             <div className="mt-6 w-full border-t border-border pt-4 text-left text-xs space-y-2.5 text-muted-foreground">
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-foreground">Username:</span>
-                <span>{user?.username}</span>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 min-w-0">
+                <span className="font-medium text-foreground shrink-0">Username:</span>
+                <span className="truncate min-w-0 font-mono text-[11px]" title={user?.username}>{user?.username}</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-foreground">Phone:</span>
-                <span>{user?.phoneNumber || "N/A"}</span>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 min-w-0">
+                <span className="font-medium text-foreground shrink-0">Phone:</span>
+                <span className="truncate min-w-0">{user?.phoneNumber || "N/A"}</span>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Right Column: Account Details Form */}
-        <Card className="md:col-span-2 shadow-xs border-border/80">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <div>
-              <CardTitle className="text-lg font-bold">Personal & Address Details</CardTitle>
-              <CardDescription className="text-xs">
+        <Card className="lg:col-span-2 shadow-xs border-border/80 min-w-0 overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 min-w-0">
+            <div className="min-w-0 pr-2">
+              <CardTitle className="text-lg font-bold truncate">Personal & Address Details</CardTitle>
+              <CardDescription className="text-xs truncate">
                 {editing ? "Update your personal details below" : "Your saved contact & delivery details"}
               </CardDescription>
             </div>
@@ -142,7 +142,7 @@ function ProfilePage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-1.5 text-xs font-medium"
+                className="gap-1.5 text-xs font-medium shrink-0"
                 onClick={() => setEditing(true)}
               >
                 <Edit2 className="h-3.5 w-3.5" /> Edit Profile
@@ -151,14 +151,14 @@ function ProfilePage() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="gap-1 text-xs text-muted-foreground hover:text-foreground"
+                className="gap-1 text-xs text-muted-foreground hover:text-foreground shrink-0"
                 onClick={() => setEditing(false)}
               >
                 <X className="h-3.5 w-3.5" /> Cancel
               </Button>
             )}
           </CardHeader>
-          <CardContent>
+          <CardContent className="min-w-0">
             {editing ? (
               <FormWrapper onSubmit={handleSaveProfile} aria-label="Edit Profile Form">
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -220,39 +220,43 @@ function ProfilePage() {
                 </div>
               </FormWrapper>
             ) : (
-              <div className="space-y-6 text-sm">
+              <div className="space-y-6 text-sm min-w-0">
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-lg border border-border/60 bg-muted/20 p-3.5">
+                  <div className="rounded-lg border border-border/60 bg-muted/20 p-3.5 min-w-0 overflow-hidden">
                     <p className="text-xs text-muted-foreground font-medium">Full Name</p>
-                    <p className="font-semibold text-foreground mt-0.5">{user?.fullName || user?.username}</p>
+                    <p className="font-semibold text-foreground mt-0.5 truncate min-w-0" title={user?.fullName || user?.username}>
+                      {user?.fullName || user?.username}
+                    </p>
                   </div>
-                  <div className="rounded-lg border border-border/60 bg-muted/20 p-3.5">
+                  <div className="rounded-lg border border-border/60 bg-muted/20 p-3.5 min-w-0 overflow-hidden">
                     <p className="text-xs text-muted-foreground font-medium">Email Address</p>
-                    <p className="font-semibold text-foreground mt-0.5">{user?.email || user?.username}</p>
+                    <p className="font-semibold text-foreground mt-0.5 truncate min-w-0" title={user?.email || user?.username}>
+                      {user?.email || user?.username}
+                    </p>
                   </div>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-lg border border-border/60 bg-muted/20 p-3.5">
+                  <div className="rounded-lg border border-border/60 bg-muted/20 p-3.5 min-w-0 overflow-hidden">
                     <p className="text-xs text-muted-foreground font-medium flex items-center gap-1">
-                      <Phone className="h-3.5 w-3.5 text-muted-foreground" /> Phone Number
+                      <Phone className="h-3.5 w-3.5 shrink-0 text-muted-foreground" /> Phone Number
                     </p>
-                    <p className="font-semibold text-foreground mt-0.5">{user?.phoneNumber || "Not provided"}</p>
+                    <p className="font-semibold text-foreground mt-0.5 truncate min-w-0">{user?.phoneNumber || "Not provided"}</p>
                   </div>
-                  <div className="rounded-lg border border-border/60 bg-muted/20 p-3.5">
+                  <div className="rounded-lg border border-border/60 bg-muted/20 p-3.5 min-w-0 overflow-hidden">
                     <p className="text-xs text-muted-foreground font-medium flex items-center gap-1">
-                      <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground" /> Assigned Role
+                      <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-muted-foreground" /> Assigned Role
                     </p>
-                    <p className="font-semibold text-foreground mt-0.5">{userRole}</p>
+                    <p className="font-semibold text-foreground mt-0.5 truncate min-w-0" title={userRole}>{userRole}</p>
                   </div>
                 </div>
 
-                <div className="rounded-lg border border-border/60 bg-muted/20 p-4 space-y-1">
+                <div className="rounded-lg border border-border/60 bg-muted/20 p-4 space-y-1 min-w-0 overflow-hidden">
                   <p className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
-                    <MapPin className="h-3.5 w-3.5 text-muted-foreground" /> Saved Delivery Address
+                    <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" /> Saved Delivery Address
                   </p>
                   {street || city || state || zipCode ? (
-                    <p className="text-sm font-semibold text-foreground pt-1">
+                    <p className="text-sm font-semibold text-foreground pt-1 break-words">
                       {[street, city, state, zipCode].filter(Boolean).join(", ")}
                     </p>
                   ) : (
